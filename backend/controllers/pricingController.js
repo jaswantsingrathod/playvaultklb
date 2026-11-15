@@ -24,23 +24,46 @@ const getPricingByGame = async (req, res, next) => {
   }
 };
 
-// @desc    Get all pricing for admin (all games or filtered by game)
+// @desc    Get all pricing for admin (all games or filtered by game with pagination & search)
 // @route   GET /api/admin/pricing
 // @access  Private
 const getAdminPricing = async (req, res, next) => {
   try {
-    const { gameId, pricingType } = req.query;
+    const { page = 1, limit = 10, search, gameId, pricingType, status } = req.query;
 
     const query = {};
-    if (gameId) query.game = gameId;
-    if (pricingType) query.pricingType = pricingType;
+    if (gameId && gameId !== 'all') query.game = gameId;
+    if (pricingType && pricingType !== 'all') query.pricingType = pricingType;
+    if (status === 'active') query.isActive = true;
+    if (status === 'inactive') query.isActive = false;
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      query.$or = [{ title: searchRegex }, { badge: searchRegex }, { description: searchRegex }];
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const total = await GamePricing.countDocuments(query);
+    const totalPages = Math.ceil(total / limitNum) || 1;
 
     const pricing = await GamePricing.find(query)
       .populate('game', 'title slug coverImage hourlyPrice dailyPrice isAvailable')
-      .sort({ game: 1, durationHours: 1, displayOrder: 1 });
+      .sort({ game: 1, durationHours: 1, displayOrder: 1 })
+      .skip(skip)
+      .limit(limitNum);
 
     res.status(200).json({
       success: true,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+      pages: totalPages,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
       count: pricing.length,
       data: pricing,
     });
@@ -205,10 +228,44 @@ const deletePricingTier = async (req, res, next) => {
   }
 };
 
+// @desc    Bulk delete pricing tiers
+// @route   POST /api/admin/pricing/bulk-delete
+// @access  Private
+const bulkDeletePricingTiers = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of pricing tier IDs to delete.',
+      });
+    }
+
+    const deleteResult = await GamePricing.deleteMany({ _id: { $in: ids } });
+
+    await logActivity(
+      req,
+      'BULK_DELETE_PRICING',
+      'Pricing',
+      `Bulk deleted ${deleteResult.deletedCount || ids.length} pricing tiers.`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${deleteResult.deletedCount || ids.length} pricing tiers.`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPricingByGame,
   getAdminPricing,
   createPricingTier,
   updatePricingTier,
   deletePricingTier,
+  bulkDeletePricingTiers,
 };

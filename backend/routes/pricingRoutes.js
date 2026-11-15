@@ -6,6 +6,7 @@ const {
   createPricingTier,
   updatePricingTier,
   deletePricingTier,
+  bulkDeletePricingTiers,
 } = require('../controllers/pricingController');
 const { protectAdmin } = require('../middleware/auth');
 
@@ -22,11 +23,15 @@ router.get('/', (req, res, next) => {
 
 // Admin routes with /admin prefix
 router.get('/admin', protectAdmin, getAdminPricing);
+router.post('/admin/bulk-delete', protectAdmin, bulkDeletePricingTiers);
+router.delete('/admin/bulk', protectAdmin, bulkDeletePricingTiers);
 router.post('/admin', protectAdmin, createPricingTier);
 router.put('/admin/:id', protectAdmin, updatePricingTier);
 router.delete('/admin/:id', protectAdmin, deletePricingTier);
 
 // Admin routes without /admin prefix
+router.post('/bulk-delete', protectAdmin, bulkDeletePricingTiers);
+router.delete('/bulk', protectAdmin, bulkDeletePricingTiers);
 router.post('/', protectAdmin, createPricingTier);
 router.put('/:id', protectAdmin, updatePricingTier);
 router.delete('/:id', protectAdmin, deletePricingTier);

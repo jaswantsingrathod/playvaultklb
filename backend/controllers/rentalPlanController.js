@@ -31,18 +31,46 @@ const getPublicRentalPlans = async (req, res, next) => {
   }
 };
 
-// @desc    Get all rental plans for admin
+// @desc    Get all rental plans for admin (with pagination, search, status filter)
 // @route   GET /api/admin/rental-plans
 // @access  Private
 const getAdminRentalPlans = async (req, res, next) => {
   try {
-    const plans = await RentalPlan.find().sort({
-      displayOrder: 1,
-      durationHours: 1,
-    });
+    const { page = 1, limit = 10, search, status } = req.query;
+
+    const query = {};
+    if (status === 'active') query.isActive = true;
+    if (status === 'inactive') query.isActive = false;
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      query.$or = [{ name: searchRegex }, { durationLabel: searchRegex }, { badge: searchRegex }, { description: searchRegex }];
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const total = await RentalPlan.countDocuments(query);
+    const totalPages = Math.ceil(total / limitNum) || 1;
+
+    const plans = await RentalPlan.find(query)
+      .sort({
+        displayOrder: 1,
+        durationHours: 1,
+      })
+      .skip(skip)
+      .limit(limitNum);
 
     res.status(200).json({
       success: true,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+      pages: totalPages,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
       count: plans.length,
       data: plans,
     });
@@ -212,10 +240,44 @@ const deleteRentalPlan = async (req, res, next) => {
   }
 };
 
+// @desc    Bulk delete rental plans
+// @route   POST /api/admin/rental-plans/bulk-delete
+// @access  Private
+const bulkDeleteRentalPlans = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of rental plan IDs to delete.',
+      });
+    }
+
+    const deleteResult = await RentalPlan.deleteMany({ _id: { $in: ids } });
+
+    await logActivity(
+      req,
+      'BULK_DELETE_PLANS',
+      'RentalPlans',
+      `Bulk deleted ${deleteResult.deletedCount || ids.length} rental plans.`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${deleteResult.deletedCount || ids.length} rental plans.`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPublicRentalPlans,
   getAdminRentalPlans,
   createRentalPlan,
   updateRentalPlan,
   deleteRentalPlan,
+  bulkDeleteRentalPlans,
 };

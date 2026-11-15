@@ -32,12 +32,33 @@ const getCategories = async (req, res, next) => {
   }
 };
 
-// @desc    Get all categories for admin (including inactive and game count)
+// @desc    Get all categories for admin (including inactive and game count with server-side pagination & search)
 // @route   GET /api/admin/categories
 // @access  Private
 const getAllCategoriesAdmin = async (req, res, next) => {
   try {
-    const categories = await GameCategory.find().sort({ displayOrder: 1, name: 1 });
+    const { page = 1, limit = 10, search, status } = req.query;
+
+    const query = {};
+    if (status === 'active') query.isActive = true;
+    if (status === 'inactive') query.isActive = false;
+
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      query.$or = [{ name: searchRegex }, { slug: searchRegex }, { description: searchRegex }];
+    }
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
+    const total = await GameCategory.countDocuments(query);
+    const totalPages = Math.ceil(total / limitNum) || 1;
+
+    const categories = await GameCategory.find(query)
+      .sort({ displayOrder: 1, name: 1 })
+      .skip(skip)
+      .limit(limitNum);
 
     // Count games per category
     const categoriesWithCount = await Promise.all(
@@ -55,6 +76,13 @@ const getAllCategoriesAdmin = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+      pages: totalPages,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
       count: categoriesWithCount.length,
       data: categoriesWithCount,
     });
@@ -186,10 +214,57 @@ const deleteCategory = async (req, res, next) => {
   }
 };
 
+// @desc    Bulk delete categories
+// @route   POST /api/admin/categories/bulk-delete
+// @access  Private
+const bulkDeleteCategories = async (req, res, next) => {
+  try {
+    const { ids, force = false } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of category IDs to delete.',
+      });
+    }
+
+    // Check if any games are attached to these categories
+    const gamesCount = await Game.countDocuments({
+      category: { $in: ids },
+      isDeleted: false,
+    });
+
+    if (gamesCount > 0 && !force) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot delete selected categories because ${gamesCount} active games are assigned to them. Reassign or remove those games first.`,
+      });
+    }
+
+    const deleteResult = await GameCategory.deleteMany({ _id: { $in: ids } });
+
+    await logActivity(
+      req,
+      'BULK_DELETE_CATEGORIES',
+      'Categories',
+      `Bulk deleted ${deleteResult.deletedCount || ids.length} categories.`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${deleteResult.deletedCount || ids.length} categories.`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getCategories,
   getAllCategoriesAdmin,
   createCategory,
   updateCategory,
   deleteCategory,
+  bulkDeleteCategories,
 };

@@ -6,6 +6,7 @@ const {
   createCategory,
   updateCategory,
   deleteCategory,
+  bulkDeleteCategories,
 } = require('../controllers/categoryController');
 const { protectAdmin } = require('../middleware/auth');
 
@@ -20,11 +21,15 @@ router.get('/', (req, res, next) => {
 
 // Admin routes with /admin prefix
 router.get('/admin', protectAdmin, getAllCategoriesAdmin);
+router.post('/admin/bulk-delete', protectAdmin, bulkDeleteCategories);
+router.delete('/admin/bulk', protectAdmin, bulkDeleteCategories);
 router.post('/admin', protectAdmin, createCategory);
 router.put('/admin/:id', protectAdmin, updateCategory);
 router.delete('/admin/:id', protectAdmin, deleteCategory);
 
 // Admin routes without /admin prefix (when mounted at /api/admin/categories)
+router.post('/bulk-delete', protectAdmin, bulkDeleteCategories);
+router.delete('/bulk', protectAdmin, bulkDeleteCategories);
 router.post('/', protectAdmin, createCategory);
 router.put('/:id', protectAdmin, updateCategory);
 router.delete('/:id', protectAdmin, deleteCategory);

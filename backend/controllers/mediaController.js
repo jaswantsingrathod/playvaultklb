@@ -165,8 +165,62 @@ const deleteMedia = async (req, res, next) => {
   }
 };
 
+// @desc    Bulk delete media files
+// @route   POST /api/admin/media/bulk-delete
+// @access  Private
+const bulkDeleteMedia = async (req, res, next) => {
+  try {
+    const { ids } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of media IDs to delete.',
+      });
+    }
+
+    const items = await Media.find({ _id: { $in: ids } });
+
+    for (const media of items) {
+      if (media.publicId) {
+        try {
+          await cloudinary.uploader.destroy(media.publicId);
+        } catch (e) {
+          console.warn('[Cloudinary Bulk Delete]', e.message);
+        }
+      }
+      if (media.fileName) {
+        const filePath = path.join(__dirname, '../uploads', media.fileName);
+        if (fs.existsSync(filePath)) {
+          try {
+            fs.unlinkSync(filePath);
+          } catch (e) {}
+        }
+      }
+    }
+
+    const deleteResult = await Media.deleteMany({ _id: { $in: ids } });
+
+    await logActivity(
+      req,
+      'BULK_DELETE_MEDIA',
+      'Media',
+      `Bulk deleted ${deleteResult.deletedCount || ids.length} media files.`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${deleteResult.deletedCount || ids.length} media files.`,
+      deletedCount: deleteResult.deletedCount,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   uploadMedia,
   getAllMedia,
   deleteMedia,
+  bulkDeleteMedia,
 };
