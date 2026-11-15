@@ -19,7 +19,7 @@ const websiteSettingSchema = new mongoose.Schema(
     },
     logoUrl: {
       type: String,
-      default: '',
+      default: 'https://res.cloudinary.com/dm72fqsjz/image/upload/v1794750946/playvault/playvault-logo.jpg',
     },
     // Hero section
     heroHeading: {

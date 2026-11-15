@@ -67,10 +67,15 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a href="#home" className="flex items-center gap-2 sm:gap-3 group">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center shadow-glow-sm border border-purple-400/30 group-hover:border-purple-400 transition-all shrink-0">
-                <Gamepad2 className="w-4 h-4 sm:w-6 sm:h-6 text-white transform group-hover:scale-110 transition-transform" />
-              </div>
+            <a href="#home" className="flex items-center gap-2.5 sm:gap-3 group">
+              <img
+                src={settings.logoUrl || '/logo.jpeg'}
+                alt="PlayVaultKLB Logo"
+                className="h-9 sm:h-11 w-auto object-contain rounded-xl border border-purple-500/30 group-hover:border-purple-400 transition-all shadow-glow-sm bg-vault-card/80 p-0.5"
+                onError={(e) => {
+                  e.target.src = '/logo.jpeg';
+                }}
+              />
               <div className="flex flex-col">
                 <div className="flex items-center gap-1">
                   <span className="font-gaming font-extrabold text-xl sm:text-2xl tracking-wider text-white">

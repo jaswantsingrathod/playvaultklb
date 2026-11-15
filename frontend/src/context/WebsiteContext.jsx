@@ -7,6 +7,7 @@ export const WebsiteProvider = ({ children }) => {
   const [settings, setSettings] = useState({
     siteName: 'PlayVaultKLB',
     tagline: 'Premium PS5 Rental Services',
+    logoUrl: '/logo.jpeg',
     heroHeading: 'YOUR NEXT GAMING SESSION STARTS HERE.',
     heroSubheading:
       'Experience premium PlayStation 5 gaming without the commitment of buying a console. Pick your favourite games, choose your rental duration and start playing.',

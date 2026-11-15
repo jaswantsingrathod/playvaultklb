@@ -55,9 +55,11 @@ const AdminLogin = () => {
         <div className="rounded-2xl bg-vault-card border border-purple-500/30 p-8 shadow-2xl shadow-purple-950/40">
           {/* Logo & Header */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center mx-auto mb-4 shadow-glow-sm border border-purple-400/30">
-              <Gamepad2 className="w-8 h-8 text-white" />
-            </div>
+            <img
+              src="/logo.jpeg"
+              alt="PlayVaultKLB"
+              className="h-16 w-auto mx-auto mb-4 object-contain rounded-2xl shadow-glow-sm border border-purple-500/30 p-1 bg-vault-surface"
+            />
             <h1 className="font-gaming font-extrabold text-2xl text-white tracking-wider">
               PLAY<span className="text-purple-400">VAULT</span> ADMIN
             </h1>

@@ -55,9 +55,11 @@ const AdminLayout = () => {
         {/* Brand Header */}
         <div className="h-16 flex items-center px-6 border-b border-purple-500/15">
           <Link to="/admin/dashboard" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white shadow-glow-sm">
-              <Gamepad2 className="w-5 h-5" />
-            </div>
+            <img
+              src="/logo.jpeg"
+              alt="PlayVault Logo"
+              className="h-8 w-auto object-contain rounded-lg border border-purple-500/30 shadow-glow-sm bg-vault-card p-0.5"
+            />
             <div>
               <span className="font-gaming font-extrabold text-xl text-white tracking-wider">
                 PLAY<span className="text-purple-400">VAULT</span>
@@ -167,7 +169,7 @@ const AdminLayout = () => {
             >
               <div className="h-14 flex items-center justify-between px-4 border-b border-purple-500/15">
                 <div className="flex items-center gap-2">
-                  <Gamepad2 className="w-5 h-5 text-purple-400" />
+                  <img src="/logo.jpeg" alt="Logo" className="h-7 w-auto object-contain rounded-lg border border-purple-500/30" />
                   <span className="font-gaming font-bold text-base text-white">PLAYVAULT ADMIN</span>
                 </div>
                 <button

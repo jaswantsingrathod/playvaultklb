@@ -20,9 +20,14 @@ const Footer = () => {
           {/* Brand Info */}
           <div className="sm:col-span-2 space-y-3.5">
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white shadow-glow-sm shrink-0">
-                <Gamepad2 className="w-4 h-4 sm:w-5 sm:h-5" />
-              </div>
+              <img
+                src={settings.logoUrl || '/logo.jpeg'}
+                alt="PlayVaultKLB"
+                className="h-9 sm:h-11 w-auto object-contain rounded-xl border border-purple-500/30 shadow-glow-sm bg-vault-card/80 p-0.5 shrink-0"
+                onError={(e) => {
+                  e.target.src = '/logo.jpeg';
+                }}
+              />
               <span className="font-gaming font-extrabold text-xl sm:text-2xl text-white tracking-wider">
                 PLAY<span className="text-purple-400">VAULT</span>
                 <span className="ml-1 text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
