@@ -134,12 +134,12 @@ const getPublicGameById = async (req, res, next) => {
   }
 };
 
-// @desc    Get all games for Admin (with search, pagination, inactive)
+// @desc    Get all games for Admin (with search, pagination, status & category filters)
 // @route   GET /api/admin/games
 // @access  Private
 const getAdminGames = async (req, res, next) => {
   try {
-    const { page = 1, limit = 50, search, category, status } = req.query;
+    const { page = 1, limit = 10, search, category, status, sortBy = 'createdAt', sortOrder = 'desc' } = req.query;
 
     const query = { isDeleted: false };
 
@@ -153,23 +153,33 @@ const getAdminGames = async (req, res, next) => {
       query.isAvailable = false;
     }
 
-    if (category) {
+    if (category && category !== 'all') {
       query.category = category;
     }
 
     if (search && search.trim()) {
       const searchRegex = new RegExp(search.trim(), 'i');
-      query.$or = [{ title: searchRegex }, { genre: searchRegex }];
+      query.$or = [{ title: searchRegex }, { genre: searchRegex }, { tags: { $in: [searchRegex] } }];
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 10));
+    const skip = (pageNum - 1) * limitNum;
+
     const total = await Game.countDocuments(query);
+    const totalPages = Math.ceil(total / limitNum) || 1;
+
+    let sort = { createdAt: -1 };
+    if (sortBy === 'title') sort = { title: sortOrder === 'asc' ? 1 : -1 };
+    if (sortBy === 'hourlyPrice') sort = { hourlyPrice: sortOrder === 'asc' ? 1 : -1 };
+    if (sortBy === 'rating') sort = { rating: sortOrder === 'asc' ? 1 : -1 };
+    if (sortBy === 'displayOrder') sort = { displayOrder: 1, createdAt: -1 };
 
     const games = await Game.find(query)
       .populate('category', 'name slug')
-      .sort({ createdAt: -1 })
+      .sort(sort)
       .skip(skip)
-      .limit(Number(limit))
+      .limit(limitNum)
       .lean();
 
     // Attach pricing count
@@ -186,8 +196,12 @@ const getAdminGames = async (req, res, next) => {
     res.status(200).json({
       success: true,
       total,
-      page: Number(page),
-      pages: Math.ceil(total / Number(limit)),
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+      pages: totalPages,
+      hasNextPage: pageNum < totalPages,
+      hasPrevPage: pageNum > 1,
       count: enrichedGames.length,
       data: enrichedGames,
     });
@@ -482,6 +496,60 @@ const deleteGame = async (req, res, next) => {
   }
 };
 
+// @desc    Bulk delete or archive games
+// @route   POST /api/admin/games/bulk-delete
+// @access  Private
+const bulkDeleteGames = async (req, res, next) => {
+  try {
+    const { ids, permanent = false } = req.body;
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an array of game IDs to delete.',
+      });
+    }
+
+    if (permanent === true || permanent === 'true') {
+      const deleteResult = await Game.deleteMany({ _id: { $in: ids } });
+      await GamePricing.deleteMany({ game: { $in: ids } });
+
+      await logActivity(
+        req,
+        'BULK_PERMANENT_DELETE_GAMES',
+        'Games',
+        `Permanently deleted ${deleteResult.deletedCount || ids.length} games and their pricing engine tiers.`
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: `Permanently deleted ${deleteResult.deletedCount || ids.length} games successfully.`,
+        deletedCount: deleteResult.deletedCount,
+      });
+    } else {
+      const updateResult = await Game.updateMany(
+        { _id: { $in: ids } },
+        { $set: { isDeleted: true, isActive: false } }
+      );
+
+      await logActivity(
+        req,
+        'BULK_SOFT_DELETE_GAMES',
+        'Games',
+        `Archived/soft-deleted ${updateResult.modifiedCount || ids.length} games.`
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: `Successfully moved ${updateResult.modifiedCount || ids.length} games to archive.`,
+        archivedCount: updateResult.modifiedCount,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPublicGames,
   getPublicGameById,
@@ -490,4 +558,5 @@ module.exports = {
   createGame,
   updateGame,
   deleteGame,
+  bulkDeleteGames,
 };

@@ -8,6 +8,7 @@ const {
   createGame,
   updateGame,
   deleteGame,
+  bulkDeleteGames,
 } = require('../controllers/gameController');
 const { protectAdmin } = require('../middleware/auth');
 
@@ -16,6 +17,8 @@ router.get('/', getPublicGames);
 
 // Admin endpoints (supporting both /api/games/admin/... and /api/admin/games/...)
 router.get('/admin/all', protectAdmin, getAdminGames);
+router.post('/admin/bulk-delete', protectAdmin, bulkDeleteGames);
+router.delete('/admin/bulk', protectAdmin, bulkDeleteGames);
 router.get('/admin/:id', protectAdmin, getAdminGameById);
 router.post('/admin', protectAdmin, createGame);
 router.put('/admin/:id', protectAdmin, updateGame);
@@ -23,6 +26,8 @@ router.delete('/admin/:id', protectAdmin, deleteGame);
 
 // Additional admin root mappings when mounted at /api/admin/games
 router.get('/all', protectAdmin, getAdminGames);
+router.post('/bulk-delete', protectAdmin, bulkDeleteGames);
+router.delete('/bulk', protectAdmin, bulkDeleteGames);
 router.post('/', protectAdmin, createGame);
 router.get('/:id', (req, res, next) => {
   // If it's an admin authenticated request or public
