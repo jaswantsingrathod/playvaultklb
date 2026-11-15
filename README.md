@@ -161,8 +161,6 @@ playvault/
 │   ├── package.json
 │   ├── tailwind.config.js
 │   └── vite.config.js                    # Proxy config to port 5000
-├── database/
-│   └── schema.md                         # Detailed database documentation
 ├── .env.example                          # Root environment template
 └── README.md
 ```
@@ -447,7 +445,7 @@ Now open **`http://localhost:5000`** in any browser. Express will automatically 
 
 ## 💎 PlayVaultKLB Verification Checklist
 
-- [x] Full-stack architecture separated cleanly (`frontend/`, `backend/`, `database/`).
+- [x] Full-stack architecture separated cleanly (`frontend/`, `backend/`).
 - [x] Node.js Express REST API connected to MongoDB via Mongoose v8.
 - [x] Cloudinary CDN configured with cloud name `dm72fqsjz`.
 - [x] JWT authentication and bcrypt password hashing.
