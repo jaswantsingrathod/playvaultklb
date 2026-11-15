@@ -285,7 +285,7 @@ const ManageGames = () => {
                           alt={game.title}
                           className="w-9 h-12 rounded-lg object-cover bg-vault-surface border border-zinc-800 shrink-0"
                           onError={(e) => {
-                            e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=100&q=80';
+                            e.target.src = '/logo.jpeg';
                           }}
                         />
                         <div className="min-w-0">

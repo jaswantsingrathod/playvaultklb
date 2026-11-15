@@ -189,6 +189,9 @@ const AdminDashboard = () => {
                       src={game.coverImage}
                       alt={game.title}
                       className="w-9 h-11 sm:w-11 sm:h-13 rounded-lg object-cover bg-vault-surface border border-zinc-800 shrink-0"
+                      onError={(e) => {
+                        e.target.src = '/logo.jpeg';
+                      }}
                     />
                     <div className="min-w-0">
                       <h4 className="font-semibold text-xs sm:text-sm text-white truncate">{game.title}</h4>

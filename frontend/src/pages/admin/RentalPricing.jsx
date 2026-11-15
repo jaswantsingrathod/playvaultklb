@@ -263,6 +263,9 @@ const RentalPricing = () => {
                             src={tier.game.coverImage}
                             alt=""
                             className="w-6 h-8 rounded object-cover border border-zinc-800 shrink-0"
+                            onError={(e) => {
+                              e.target.src = '/logo.jpeg';
+                            }}
                           />
                         )}
                         <span className="truncate max-w-[150px]">{tier.game?.title || 'Unknown Game'}</span>

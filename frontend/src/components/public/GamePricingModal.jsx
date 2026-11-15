@@ -58,7 +58,7 @@ const GamePricingModal = ({ game, onClose }) => {
             alt={game.title}
             className="w-full h-full object-cover opacity-60"
             onError={(e) => {
-              e.target.src = game.coverImage || 'https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=1200&q=80';
+              e.target.src = '/logo.jpeg';
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-vault-card via-vault-card/60 to-transparent" />

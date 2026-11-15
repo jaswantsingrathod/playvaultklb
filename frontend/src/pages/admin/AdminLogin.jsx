@@ -41,11 +41,6 @@ const AdminLogin = () => {
     }
   };
 
-  const handleFillDemo = () => {
-    setIdentifier('admin@playvaultklb.com');
-    setPassword('PlayVault@2025!');
-  };
-
   return (
     <div className="min-h-screen bg-vault-bg flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background glow effects */}
@@ -128,17 +123,6 @@ const AdminLogin = () => {
               )}
             </button>
           </form>
-
-          {/* Quick Demo Credentials Autofill */}
-          <div className="mt-6 pt-5 border-t border-purple-500/15 text-center">
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="text-xs text-purple-400 hover:text-purple-300 underline font-medium"
-            >
-              Use Initial Seed Credentials (admin@playvaultklb.com)
-            </button>
-          </div>
         </div>
 
         <div className="mt-4 text-center">

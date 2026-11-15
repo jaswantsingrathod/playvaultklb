@@ -181,7 +181,7 @@ const GamesCatalogue = () => {
                       loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80';
+                        e.target.src = '/logo.jpeg';
                       }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-vault-card via-transparent to-black/30" />
