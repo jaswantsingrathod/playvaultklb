@@ -1,0 +1,44 @@
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadsDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname).toLowerCase();
+    const cleanBase = path
+      .basename(file.originalname, ext)
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .substring(0, 30);
+    cb(null, `${cleanBase}-${uniqueSuffix}${ext}`);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  const allowedTypes = /jpeg|jpg|png|webp|gif|svg/;
+  const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const mime = allowedTypes.test(file.mimetype);
+
+  if (ext && mime) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image files (JPEG, PNG, WEBP, GIF, SVG) are allowed!'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: fileFilter,
+});
+
+module.exports = upload;
