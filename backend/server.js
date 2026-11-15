@@ -121,9 +121,22 @@ app.use(errorHandler);
 
 const fs = require('fs');
 
-// Serve static frontend in production if built
-const frontendDist = path.join(__dirname, '../frontend/dist');
-if (fs.existsSync(frontendDist)) {
+// Serve static frontend in production
+const possibleDistPaths = [
+  path.join(__dirname, 'public'),
+  path.join(__dirname, '../frontend/dist'),
+  path.join(process.cwd(), 'backend/public'),
+  path.join(process.cwd(), 'frontend/dist'),
+  path.join(process.cwd(), 'public'),
+  path.join(process.cwd(), 'dist'),
+];
+
+const frontendDist = possibleDistPaths.find(
+  (dir) => fs.existsSync(dir) && fs.existsSync(path.join(dir, 'index.html'))
+);
+
+if (frontendDist) {
+  console.log(`[Frontend] Serving static React app from: ${frontendDist}`);
   app.use(express.static(frontendDist));
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.originalUrl.startsWith('/api') && !req.originalUrl.startsWith('/uploads')) {
@@ -131,6 +144,8 @@ if (fs.existsSync(frontendDist)) {
     }
     next();
   });
+} else {
+  console.warn('[Frontend] Static frontend not found in any of:', possibleDistPaths);
 }
 
 // 404 handler for unknown API routes

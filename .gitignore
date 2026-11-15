@@ -12,9 +12,7 @@ backend/.env.*
 frontend/.env
 frontend/.env.*
 
-# Build Outputs
-dist/
-*/dist/
+# Build Outputs (Allowing pre-built frontend distribution for Render hosting)
 build/
 */build/
 
