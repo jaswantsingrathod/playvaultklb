@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: playvaultklb
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        value: dm72fqsjz
+      - key: CLOUDINARY_API_KEY
+        value: "229787286928923"
+      - key: CLOUDINARY_API_SECRET
+        sync: false

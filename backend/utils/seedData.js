@@ -485,11 +485,21 @@ const seedDatabase = async () => {
     console.log('Password: PlayVault@2025!');
     console.log('==================================================');
 
-    process.exit(0);
+    if (require.main === module) {
+      process.exit(0);
+    }
+    return true;
   } catch (err) {
     console.error('❌ SEEDING FAILED:', err);
-    process.exit(1);
+    if (require.main === module) {
+      process.exit(1);
+    }
+    throw err;
   }
 };
 
-seedDatabase();
+if (require.main === module) {
+  seedDatabase();
+}
+
+module.exports = { seedDatabase };

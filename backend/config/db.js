@@ -9,6 +9,21 @@ const connectDB = async () => {
       autoIndex: true,
     });
     console.log(`[MongoDB] Connected successfully to host: ${conn.connection.host}, database: ${conn.connection.name}`);
+
+    // Auto-seed if database is empty (e.g. on new cloud MongoDB deployment)
+    try {
+      const Admin = require('../models/Admin');
+      const adminCount = await Admin.countDocuments();
+      if (adminCount === 0) {
+        console.log('[MongoDB] Empty database detected. Auto-seeding initial PlayVaultKLB data...');
+        const { seedDatabase } = require('../utils/seedData');
+        await seedDatabase();
+        console.log('[MongoDB] Auto-seeding completed successfully.');
+      }
+    } catch (seedErr) {
+      console.warn('[MongoDB] Auto-seed check skipped or encountered error:', seedErr.message);
+    }
+
     return conn;
   } catch (error) {
     console.error(`[MongoDB] Initial connection error with URI (${uri.replace(/:([^:@]+)@/, ':****@')}):`, error.message);

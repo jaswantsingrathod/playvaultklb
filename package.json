@@ -1,0 +1,29 @@
+{
+  "name": "playvaultklb",
+  "version": "1.0.0",
+  "description": "PlayVaultKLB - Premium PS5 Rental Management Platform",
+  "main": "backend/server.js",
+  "scripts": {
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd backend && npm install && cd ../frontend && npm install && npm run build",
+    "start": "cd backend && node server.js",
+    "seed": "cd backend && node utils/seedData.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "playstation",
+    "ps5",
+    "rental",
+    "gaming",
+    "fullstack",
+    "react",
+    "vite",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "PlayVaultKLB",
+  "license": "ISC"
+}
