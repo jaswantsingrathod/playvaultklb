@@ -50,10 +50,10 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-vault-bg text-vault-text flex">
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-vault-surface border-r border-purple-500/15 shrink-0 select-none">
+      {/* Desktop Sidebar - Sticky locked to viewport */}
+      <aside className="hidden lg:flex lg:flex-col w-64 bg-vault-surface border-r border-purple-500/15 shrink-0 select-none sticky top-0 h-screen overflow-hidden">
         {/* Brand Header */}
-        <div className="h-16 flex items-center px-6 border-b border-purple-500/15">
+        <div className="h-16 flex items-center px-6 border-b border-purple-500/15 shrink-0">
           <Link to="/admin/dashboard" className="flex items-center gap-2.5">
             <img
               src="/logo.jpeg"
@@ -100,7 +100,7 @@ const AdminLayout = () => {
         </div>
 
         {/* Admin User Info & Logout Footer */}
-        <div className="p-3 border-t border-purple-500/15 bg-vault-card/50">
+        <div className="p-3 border-t border-purple-500/15 bg-vault-card/50 shrink-0">
           <div className="flex items-center gap-2.5 px-2 py-1.5 mb-2">
             <div className="w-8 h-8 rounded-full bg-purple-900 border border-purple-500/30 flex items-center justify-center text-purple-300 text-xs font-bold shrink-0">
               {admin?.username ? admin.username.substring(0, 2).toUpperCase() : 'AD'}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Image as ImageIcon,
   Upload,
@@ -10,9 +10,11 @@ import {
   Cloud,
   CheckCircle2,
   AlertCircle,
+  Crop,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
+import ImageCropModal from '../../components/admin/ImageCropModal';
 
 const MediaLibrary = () => {
   const [mediaList, setMediaList] = useState([]);
@@ -23,6 +25,11 @@ const MediaLibrary = () => {
   const [copiedId, setCopiedId] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Stretchable crop modal states
+  const [tempImage, setTempImage] = useState(null);
+  const [isCropping, setIsCropping] = useState(false);
+  const fileInputRef = useRef(null);
 
   const fetchMedia = async () => {
     try {
@@ -44,12 +51,24 @@ const MediaLibrary = () => {
     fetchMedia();
   }, [filterTag]);
 
-  const handleFileUpload = async (e) => {
+  const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select a valid image file (PNG, JPG, WEBP).');
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    setTempImage(objectUrl);
+    setIsCropping(true);
+    e.target.value = '';
+  };
+
+  const handleCropConfirm = async (croppedBlob) => {
     const formData = new FormData();
-    formData.append('image', file);
+    formData.append('image', croppedBlob, `media-${Date.now()}.jpg`);
     formData.append('tag', uploadTag);
 
     try {
@@ -60,10 +79,15 @@ const MediaLibrary = () => {
       });
 
       if (res.data.success) {
-        toast.success('Image uploaded to Cloudinary successfully!');
+        toast.success('Image cropped & uploaded to Cloudinary successfully!');
         setStatusMessage('Image uploaded to Cloudinary successfully!');
         setTimeout(() => setStatusMessage(''), 3000);
+        setIsCropping(false);
+        if (tempImage) URL.revokeObjectURL(tempImage);
+        setTempImage(null);
         fetchMedia();
+      } else {
+        toast.error(res.data.message || 'Upload failed.');
       }
     } catch (err) {
       const errText = err.response?.data?.message || 'Upload to Cloudinary failed.';
@@ -71,12 +95,16 @@ const MediaLibrary = () => {
       setErrorMessage(errText);
     } finally {
       setUploading(false);
-      e.target.value = '';
     }
   };
 
+  const handleCancelCrop = () => {
+    if (tempImage) URL.revokeObjectURL(tempImage);
+    setTempImage(null);
+    setIsCropping(false);
+  };
+
   const handleCopyUrl = (url, id) => {
-    // If relative path, prepend host, otherwise copy full cloudinary URL
     const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
     navigator.clipboard.writeText(fullUrl);
     setCopiedId(id);
@@ -96,6 +124,13 @@ const MediaLibrary = () => {
     }
   };
 
+  const getInitialAspect = () => {
+    if (uploadTag === 'game-cover') return 3 / 4;
+    if (uploadTag === 'banner') return 16 / 9;
+    if (uploadTag === 'logo') return 1;
+    return undefined; // Freeform stretch for general
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -111,7 +146,7 @@ const MediaLibrary = () => {
             </span>
           </div>
           <p className="text-xs text-zinc-400 mt-1">
-            Upload game covers, promotional banners, and PlayStation artwork. Copy URLs to use in game forms.
+            Upload game covers, promotional banners, and PlayStation artwork with stretchable crop. Copy URLs to use in game forms.
           </p>
         </div>
 
@@ -122,20 +157,21 @@ const MediaLibrary = () => {
             onChange={(e) => setUploadTag(e.target.value)}
             className="px-3 py-2 rounded-xl bg-vault-card border border-zinc-800 text-white text-xs outline-none"
           >
-            <option value="game-cover">Game Cover Art</option>
-            <option value="banner">Promotional Banner</option>
-            <option value="logo">Logo & Badges</option>
-            <option value="general">General Asset</option>
+            <option value="game-cover">Game Cover Art (3:4)</option>
+            <option value="banner">Promotional Banner (16:9)</option>
+            <option value="logo">Logo & Badges (1:1)</option>
+            <option value="general">General Asset (Freeform)</option>
           </select>
 
           <label className="cursor-pointer px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs flex items-center gap-2 shadow-glow-sm transition-all">
             <Upload className="w-4 h-4" />
-            <span>{uploading ? 'Uploading to Cloudinary...' : 'Upload Image'}</span>
+            <span>{uploading ? 'Processing...' : 'Upload & Crop Image'}</span>
             <input
               type="file"
+              ref={fileInputRef}
               accept="image/*"
               disabled={uploading}
-              onChange={handleFileUpload}
+              onChange={handleFileSelect}
               className="hidden"
             />
           </label>
@@ -242,6 +278,18 @@ const MediaLibrary = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {/* Stretchable Crop Modal for Media Library */}
+      {isCropping && tempImage && (
+        <ImageCropModal
+          imageSrc={tempImage}
+          initialAspect={getInitialAspect()}
+          title={`Crop Media Asset (${uploadTag})`}
+          onConfirm={handleCropConfirm}
+          onCancel={handleCancelCrop}
+          isUploading={uploading}
+        />
       )}
     </div>
   );

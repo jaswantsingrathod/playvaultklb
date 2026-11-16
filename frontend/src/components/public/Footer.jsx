@@ -14,7 +14,11 @@ const Footer = () => {
   const directWhatsAppUrl = `https://wa.me/${cleanPhoneNumber(whatsappNumber)}`;
 
   return (
-    <footer className="bg-vault-surface border-t border-purple-500/15 text-zinc-400 text-xs sm:text-sm relative">
+    <footer className="bg-[#05030a] border-t border-purple-500/20 text-zinc-400 text-xs sm:text-sm relative overflow-hidden">
+      {/* PlayStation Controller Glyphs */}
+      <div className="absolute top-6 right-6 text-purple-500/[0.04] font-black text-8xl select-none pointer-events-none">
+        △ ◯ ✕ ▢
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8 sm:pb-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10">
           {/* Brand Info */}

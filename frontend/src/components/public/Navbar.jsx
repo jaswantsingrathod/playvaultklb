@@ -97,15 +97,20 @@ const Navbar = () => {
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.href)}
-                  className="px-3 py-1.5 text-xs sm:text-sm font-medium text-zinc-300 hover:text-white rounded-lg hover:bg-purple-950/40 transition-colors"
+                  className="px-3 py-1.5 text-xs font-gaming font-bold tracking-wider uppercase text-zinc-300 hover:text-white rounded-lg hover:bg-purple-950/50 hover:border hover:border-purple-500/30 transition-all"
                 >
                   {link.name}
                 </button>
               ))}
             </div>
 
-            {/* Desktop Actions: Instagram & WhatsApp Button */}
+            {/* Desktop Actions: Status, Instagram & WhatsApp Button */}
             <div className="hidden md:flex items-center gap-2.5 sm:gap-3">
+              <div className="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-[11px] font-gaming font-bold tracking-wider uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>PS5 FLEET: READY</span>
+              </div>
+
               {/* Instagram link */}
               <a
                 href={instagramUrl || 'https://www.instagram.com/playvaultklb/'}
@@ -122,7 +127,7 @@ const Navbar = () => {
                 href={bookingUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs sm:text-sm shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-gaming font-extrabold text-xs sm:text-sm tracking-wider uppercase shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
               >
                 <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current" />
                 <span>Book on WhatsApp</span>
