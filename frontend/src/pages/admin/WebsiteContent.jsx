@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { FileText, Save, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { useWebsite } from '../../context/WebsiteContext';
+import ImageUploadCropper from '../../components/admin/ImageUploadCropper';
 
 const WebsiteContent = () => {
   const { refreshSettings } = useWebsite();
@@ -53,12 +55,15 @@ const WebsiteContent = () => {
       setSaving(true);
       const res = await api.put('/settings/admin', form);
       if (res.data.success) {
+        toast.success('Website content and CMS updated successfully!');
         setSavedSuccess(true);
         refreshSettings();
         setTimeout(() => setSavedSuccess(false), 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update website content.');
+      const errText = err.response?.data?.message || 'Failed to update website content.';
+      toast.error(errText);
+      setError(errText);
     } finally {
       setSaving(false);
     }
@@ -173,13 +178,13 @@ const WebsiteContent = () => {
           </div>
 
           <div>
-            <label className="block font-semibold text-zinc-300 mb-1">Hero Background Image URL (Optional)</label>
-            <input
-              type="url"
-              placeholder="https://..."
+            <ImageUploadCropper
+              label="Hero Background Image"
               value={form.heroBgImage}
-              onChange={(e) => setForm({ ...form, heroBgImage: e.target.value })}
-              className="w-full px-3 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
+              onChange={(url) => setForm((prev) => ({ ...prev, heroBgImage: url }))}
+              aspect={16 / 9}
+              tag="website-banner"
+              helperText="16:9 widescreen format recommended for homepage hero background"
             />
           </div>
         </div>

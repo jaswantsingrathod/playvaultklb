@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { UserCheck, Lock, Save, CheckCircle2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { UserCheck, Lock, Save, CheckCircle2, AlertCircle, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import ImageUploadCropper from '../../components/admin/ImageUploadCropper';
 
 const AdminProfile = () => {
   const { admin, updateAdminData } = useAuth();
@@ -17,6 +19,10 @@ const AdminProfile = () => {
     newPassword: '',
     confirmPassword: '',
   });
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [profileMessage, setProfileMessage] = useState('');
   const [profileError, setProfileError] = useState('');
@@ -44,12 +50,15 @@ const AdminProfile = () => {
       setSavingProfile(true);
       const res = await api.put('/auth/profile', profileForm);
       if (res.data.success) {
+        toast.success('Admin profile updated successfully!');
         setProfileMessage('Profile updated successfully.');
         updateAdminData(res.data.admin);
         setTimeout(() => setProfileMessage(''), 3000);
       }
     } catch (err) {
-      setProfileError(err.response?.data?.message || 'Error updating profile.');
+      const errText = err.response?.data?.message || 'Error updating profile.';
+      toast.error(errText);
+      setProfileError(errText);
     } finally {
       setSavingProfile(false);
     }
@@ -61,12 +70,16 @@ const AdminProfile = () => {
     setPasswordError('');
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordError('New password and confirm password do not match.');
+      const err = 'New password and confirm password do not match.';
+      toast.error(err);
+      setPasswordError(err);
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters long.');
+      const err = 'New password must be at least 6 characters long.';
+      toast.error(err);
+      setPasswordError(err);
       return;
     }
 
@@ -78,12 +91,15 @@ const AdminProfile = () => {
       });
 
       if (res.data.success) {
+        toast.success('Password changed successfully!');
         setPasswordMessage('Password changed successfully. Your credentials are now updated.');
         setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setTimeout(() => setPasswordMessage(''), 4000);
       }
     } catch (err) {
-      setPasswordError(err.response?.data?.message || 'Failed to change password. Verify current password.');
+      const errText = err.response?.data?.message || 'Failed to change password. Verify current password.';
+      toast.error(errText);
+      setPasswordError(errText);
     } finally {
       setSavingPassword(false);
     }
@@ -154,13 +170,13 @@ const AdminProfile = () => {
             </div>
 
             <div>
-              <label className="block font-semibold text-zinc-300 mb-1">Avatar Image URL</label>
-              <input
-                type="url"
-                placeholder="https://..."
+              <ImageUploadCropper
+                label="Avatar Profile Picture"
                 value={profileForm.avatar}
-                onChange={(e) => setProfileForm({ ...profileForm, avatar: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
+                onChange={(url) => setProfileForm((prev) => ({ ...prev, avatar: url }))}
+                aspect={1}
+                tag="avatar"
+                helperText="Square 1:1 ratio optimal for profile avatar"
               />
             </div>
 
@@ -199,38 +215,71 @@ const AdminProfile = () => {
           <form onSubmit={handleChangePassword} className="space-y-4 text-xs">
             <div>
               <label className="block font-semibold text-zinc-300 mb-1">Current Password *</label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••••••"
-                value={passwordForm.currentPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••••••"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                  className="w-full pl-3 pr-10 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors p-0.5"
+                  tabIndex={-1}
+                  title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <div>
               <label className="block font-semibold text-zinc-300 mb-1">New Password (Min 6 Characters) *</label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••••••"
-                value={passwordForm.newPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••••••"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                  className="w-full pl-3 pr-10 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors p-0.5"
+                  tabIndex={-1}
+                  title={showNewPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <div>
               <label className="block font-semibold text-zinc-300 mb-1">Confirm New Password *</label>
-              <input
-                type="password"
-                required
-                placeholder="••••••••••••"
-                value={passwordForm.confirmPassword}
-                onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
-                className="w-full px-3 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  placeholder="••••••••••••"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                  className="w-full pl-3 pr-10 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white transition-colors p-0.5"
+                  tabIndex={-1}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             <button

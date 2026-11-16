@@ -14,6 +14,7 @@ import {
   Square,
   MinusSquare,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
@@ -151,6 +152,7 @@ const RentalPricing = () => {
       setBulkDeleting(true);
       const res = await api.post('/pricing/admin/bulk-delete', { ids: selectedIds });
       if (res.data.success) {
+        toast.success(`Successfully deleted ${selectedIds.length} pricing tiers.`);
         setActionFeedback({
           type: 'success',
           text: `Successfully deleted ${selectedIds.length} pricing tiers.`,
@@ -161,9 +163,11 @@ const RentalPricing = () => {
       }
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      const errText = err.response?.data?.message || 'Failed to delete selected pricing tiers.';
+      toast.error(errText);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to delete selected pricing tiers.',
+        text: errText,
       });
       setIsBulkDeleteOpen(false);
     } finally {
@@ -209,8 +213,10 @@ const RentalPricing = () => {
       setPricingTiers((prev) =>
         prev.map((t) => (t._id === tier._id ? { ...t, isActive: updated } : t))
       );
+      toast.success(`${tier.title} is now ${updated ? 'active' : 'inactive'}.`);
     } catch (err) {
       console.error('Failed to toggle pricing tier:', err);
+      toast.error('Failed to toggle pricing tier status.');
     }
   };
 
@@ -219,7 +225,9 @@ const RentalPricing = () => {
     setFormError('');
 
     if (!formData.game || !formData.title || formData.price === undefined) {
-      setFormError('Please select a Game, enter a Tier Title, and specify the Price.');
+      const err = 'Please select a Game, enter a Tier Title, and specify the Price.';
+      setFormError(err);
+      toast.error(err);
       return;
     }
 
@@ -233,30 +241,37 @@ const RentalPricing = () => {
 
       if (editingTier) {
         await api.put(`/pricing/admin/${editingTier._id}`, payload);
+        toast.success(`Pricing tier "${formData.title}" updated!`);
         setActionFeedback({ type: 'success', text: `Pricing tier "${formData.title}" updated successfully.` });
       } else {
         await api.post('/pricing/admin', payload);
+        toast.success(`Pricing tier "${formData.title}" created!`);
         setActionFeedback({ type: 'success', text: `Pricing tier "${formData.title}" created successfully.` });
       }
 
       setIsModalOpen(false);
       fetchPricing();
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Error saving pricing tier.');
+      const errText = err.response?.data?.message || 'Error saving pricing tier.';
+      setFormError(errText);
+      toast.error(errText);
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await api.delete(`/pricing/admin/${id}`);
+      toast.success('Pricing tier deleted successfully.');
       setActionFeedback({ type: 'success', text: 'Pricing tier deleted successfully.' });
       setSelectedIds((prev) => prev.filter((item) => item !== id));
       setDeleteConfirmationId(null);
       fetchPricing();
     } catch (err) {
+      const errText = err.response?.data?.message || 'Failed to delete pricing tier.';
+      toast.error(errText);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to delete pricing tier.',
+        text: errText,
       });
       setDeleteConfirmationId(null);
     }

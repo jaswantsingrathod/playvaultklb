@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 
 const MediaLibrary = () => {
@@ -59,12 +60,15 @@ const MediaLibrary = () => {
       });
 
       if (res.data.success) {
+        toast.success('Image uploaded to Cloudinary successfully!');
         setStatusMessage('Image uploaded to Cloudinary successfully!');
         setTimeout(() => setStatusMessage(''), 3000);
         fetchMedia();
       }
     } catch (err) {
-      setErrorMessage(err.response?.data?.message || 'Upload to Cloudinary failed.');
+      const errText = err.response?.data?.message || 'Upload to Cloudinary failed.';
+      toast.error(errText);
+      setErrorMessage(errText);
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -76,6 +80,7 @@ const MediaLibrary = () => {
     const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
     navigator.clipboard.writeText(fullUrl);
     setCopiedId(id);
+    toast.success('Image URL copied to clipboard!');
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -83,9 +88,11 @@ const MediaLibrary = () => {
     if (!window.confirm('Are you sure you want to delete this media asset?')) return;
     try {
       await api.delete(`/admin/media/${id}`);
+      toast.success('Media deleted successfully.');
       fetchMedia();
     } catch (err) {
       console.error('Delete failed:', err);
+      toast.error(err.response?.data?.message || 'Failed to delete media asset.');
     }
   };
 

@@ -12,6 +12,7 @@ import {
   Square,
   MinusSquare,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
@@ -124,6 +125,7 @@ const ManageRentalPlans = () => {
       setBulkDeleting(true);
       const res = await api.post('/rental-plans/admin/bulk-delete', { ids: selectedIds });
       if (res.data.success) {
+        toast.success(`Successfully deleted ${selectedIds.length} rental plans.`);
         setActionFeedback({
           type: 'success',
           text: `Successfully deleted ${selectedIds.length} rental plans.`,
@@ -134,9 +136,11 @@ const ManageRentalPlans = () => {
       }
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      const errText = err.response?.data?.message || 'Failed to delete selected rental plans.';
+      toast.error(errText);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to delete selected rental plans.',
+        text: errText,
       });
       setIsBulkDeleteOpen(false);
     } finally {
@@ -181,8 +185,10 @@ const ManageRentalPlans = () => {
       setPlans((prev) =>
         prev.map((p) => (p._id === plan._id ? { ...p, isActive: updated } : p))
       );
+      toast.success(`${plan.name} is now ${updated ? 'active' : 'inactive'}.`);
     } catch (err) {
       console.error('Failed to toggle plan status:', err);
+      toast.error('Failed to toggle plan status.');
     }
   };
 
@@ -191,7 +197,9 @@ const ManageRentalPlans = () => {
     setFormError('');
 
     if (!formData.name || !formData.durationLabel || formData.price === undefined) {
-      setFormError('Please fill in Plan Name, Duration Label, and Rental Price.');
+      const err = 'Please fill in Plan Name, Duration Label, and Rental Price.';
+      setFormError(err);
+      toast.error(err);
       return;
     }
 
@@ -206,29 +214,36 @@ const ManageRentalPlans = () => {
 
       if (editingPlan) {
         await api.put(`/rental-plans/admin/${editingPlan._id}`, payload);
+        toast.success(`Rental plan "${formData.name}" updated!`);
         setActionFeedback({ type: 'success', text: `Rental plan "${formData.name}" updated successfully.` });
       } else {
         await api.post('/rental-plans/admin', payload);
+        toast.success(`Rental plan "${formData.name}" created!`);
         setActionFeedback({ type: 'success', text: `Rental plan "${formData.name}" created successfully.` });
       }
 
       setIsModalOpen(false);
       fetchPlans();
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Error saving rental plan.');
+      const errText = err.response?.data?.message || 'Error saving rental plan.';
+      setFormError(errText);
+      toast.error(errText);
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await api.delete(`/rental-plans/admin/${id}`);
+      toast.success('Rental plan deleted successfully.');
       setActionFeedback({ type: 'success', text: 'Rental plan deleted successfully.' });
       setSelectedIds((prev) => prev.filter((item) => item !== id));
       setDeleteConfirmationId(null);
       fetchPlans();
     } catch (err) {
       console.error('Delete failed:', err);
-      setActionFeedback({ type: 'error', text: err.response?.data?.message || 'Failed to delete rental plan.' });
+      const errText = err.response?.data?.message || 'Failed to delete rental plan.';
+      toast.error(errText);
+      setActionFeedback({ type: 'error', text: errText });
       setDeleteConfirmationId(null);
     }
   };

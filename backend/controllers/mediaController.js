@@ -76,6 +76,7 @@ const uploadMedia = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Image uploaded successfully to Cloudinary.',
+      url: media.url,
       data: media,
     });
   } catch (error) {

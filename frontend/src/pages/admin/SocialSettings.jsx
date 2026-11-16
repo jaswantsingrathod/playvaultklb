@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Share2, Save, Instagram, CheckCircle2, AlertCircle, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { useWebsite } from '../../context/WebsiteContext';
 
@@ -49,12 +50,15 @@ const SocialSettings = () => {
       setSaving(true);
       const res = await api.put('/settings/admin', form);
       if (res.data.success) {
+        toast.success('Social media settings saved successfully!');
         setSuccess(true);
         refreshSettings();
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update social media settings.');
+      const errText = err.response?.data?.message || 'Failed to update social media settings.';
+      toast.error(errText);
+      setError(errText);
     } finally {
       setSaving(false);
     }

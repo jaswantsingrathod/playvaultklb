@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PhoneCall, Save, CheckCircle2, AlertCircle, MessageSquare } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { useWebsite } from '../../context/WebsiteContext';
 
@@ -57,12 +58,15 @@ const ContactSettings = () => {
       setSaving(true);
       const res = await api.put('/settings/admin', form);
       if (res.data.success) {
+        toast.success('Contact and WhatsApp settings saved successfully!');
         setSuccess(true);
         refreshSettings();
         setTimeout(() => setSuccess(false), 3000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to update contact settings.');
+      const errText = err.response?.data?.message || 'Failed to update contact settings.';
+      toast.error(errText);
+      setError(errText);
     } finally {
       setSaving(false);
     }

@@ -14,6 +14,7 @@ import {
   MinusSquare,
   Trash2,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
@@ -104,6 +105,7 @@ const ActivityLogs = () => {
       setBulkDeleting(true);
       const res = await api.post('/admin/dashboard/logs/bulk-delete', { ids: selectedIds });
       if (res.data.success) {
+        toast.success(`Successfully deleted ${selectedIds.length} audit log entries.`);
         setActionFeedback({
           type: 'success',
           text: `Successfully deleted ${selectedIds.length} audit log entries.`,
@@ -114,9 +116,11 @@ const ActivityLogs = () => {
       }
     } catch (err) {
       console.error('Bulk delete logs failed:', err);
+      const errText = err.response?.data?.message || 'Failed to delete selected log entries.';
+      toast.error(errText);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to delete selected log entries.',
+        text: errText,
       });
       setIsBulkDeleteOpen(false);
     } finally {

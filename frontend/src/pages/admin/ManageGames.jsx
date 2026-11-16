@@ -15,13 +15,12 @@ import {
   CheckSquare,
   Square,
   MinusSquare,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsLeft,
-  ChevronsRight,
   Archive,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
+import TablePagination from '../../components/admin/TablePagination';
+import ImageUploadCropper from '../../components/admin/ImageUploadCropper';
 
 const ManageGames = () => {
   const [games, setGames] = useState([]);
@@ -145,11 +144,13 @@ const ManageGames = () => {
       });
 
       if (res.data.success) {
+        const msg = permanent
+          ? `Permanently deleted ${selectedIds.length} game(s) successfully.`
+          : `Archived ${selectedIds.length} game(s) successfully.`;
+        toast.success(msg);
         setActionFeedback({
           type: 'success',
-          text: permanent
-            ? `Permanently deleted ${selectedIds.length} game(s) successfully.`
-            : `Archived ${selectedIds.length} game(s) successfully.`,
+          text: msg,
         });
         setSelectedIds([]);
         setIsBulkDeleteOpen(false);
@@ -157,9 +158,11 @@ const ManageGames = () => {
       }
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      const errMsg = err.response?.data?.message || 'Bulk delete failed. Please try again.';
+      toast.error(errMsg);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Bulk delete failed. Please try again.',
+        text: errMsg,
       });
     } finally {
       setBulkDeleting(false);
@@ -234,8 +237,10 @@ const ManageGames = () => {
       setGames((prev) =>
         prev.map((g) => (g._id === game._id ? { ...g, [field]: updatedValue } : g))
       );
+      toast.success(`${game.title} updated.`);
     } catch (err) {
       console.error('Failed to toggle status:', err);
+      toast.error('Failed to update game status.');
     }
   };
 
@@ -244,7 +249,9 @@ const ManageGames = () => {
     setFormError('');
 
     if (!formData.title || !formData.coverImage || !formData.genre) {
-      setFormError('Game Title, Cover Image URL, and Genre are required.');
+      const err = 'Game Title, Cover Image, and Genre are required.';
+      setFormError(err);
+      toast.error(err);
       return;
     }
 
@@ -262,14 +269,18 @@ const ManageGames = () => {
 
       if (editingGame) {
         await api.put(`/games/admin/${editingGame._id}`, payload);
+        toast.success(`Game "${formData.title}" updated successfully!`);
       } else {
         await api.post('/games/admin', payload);
+        toast.success(`Game "${formData.title}" added to vault!`);
       }
 
       setIsModalOpen(false);
       fetchGamesAndCategories();
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Error saving game details.');
+      const errText = err.response?.data?.message || 'Error saving game details.';
+      setFormError(errText);
+      toast.error(errText);
     } finally {
       setSubmitting(false);
     }
@@ -279,41 +290,27 @@ const ManageGames = () => {
     if (!deleteConfirmationId) return;
     try {
       await api.delete(`/games/admin/${deleteConfirmationId}?permanent=${permanent}`);
+      const msg = permanent ? 'Game permanently deleted.' : 'Game archived successfully.';
+      toast.success(msg);
       setActionFeedback({
         type: 'success',
-        text: permanent ? 'Game permanently deleted.' : 'Game archived successfully.',
+        text: msg,
       });
       setSelectedIds((prev) => prev.filter((id) => id !== deleteConfirmationId));
       setDeleteConfirmationId(null);
       fetchGamesAndCategories();
     } catch (err) {
       console.error('Delete failed:', err);
+      const errMsg = err.response?.data?.message || 'Delete operation failed.';
+      toast.error(errMsg);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Delete operation failed.',
+        text: errMsg,
       });
     }
   };
 
-  // Pagination calculation
-  const startEntry = total === 0 ? 0 : (page - 1) * limit + 1;
-  const endEntry = Math.min(page * limit, total);
 
-  const getPageNumbers = () => {
-    const pages = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
-      if (page <= 3) {
-        pages.push(1, 2, 3, 4, '...', totalPages);
-      } else if (page >= totalPages - 2) {
-        pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        pages.push(1, '...', page - 1, page, page + 1, '...', totalPages);
-      }
-    }
-    return pages;
-  };
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -626,94 +623,16 @@ const ManageGames = () => {
           </table>
         </div>
 
-        {/* Server-Side Pagination Footer */}
-        <div className="p-3 sm:p-4 bg-vault-surface/60 border-t border-purple-500/15 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-          {/* Left: showing count */}
-          <div className="text-zinc-400">
-            Showing <span className="font-semibold text-white">{startEntry}</span> to{' '}
-            <span className="font-semibold text-white">{endEntry}</span> of{' '}
-            <span className="font-semibold text-purple-300">{total}</span> games
-          </div>
-
-          {/* Center/Right: limit and page navigation */}
-          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-zinc-400">Rows per page:</span>
-              <select
-                value={limit}
-                onChange={handleLimitChange}
-                className="px-2 py-1 rounded-lg bg-vault-card border border-zinc-800 text-white text-xs outline-none focus:border-purple-400"
-              >
-                <option value={5}>5</option>
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-            </div>
-
-            {/* Navigation buttons */}
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setPage(1)}
-                disabled={page <= 1}
-                className="p-1.5 rounded-lg bg-vault-card border border-zinc-800 hover:border-purple-400 text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="First Page"
-              >
-                <ChevronsLeft className="w-3.5 h-3.5" />
-              </button>
-
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="p-1.5 rounded-lg bg-vault-card border border-zinc-800 hover:border-purple-400 text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="Previous Page"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-
-              {/* Page number buttons */}
-              <div className="flex items-center gap-1 px-1">
-                {getPageNumbers().map((pageNum, idx) =>
-                  pageNum === '...' ? (
-                    <span key={`ellipsis-${idx}`} className="px-1.5 text-zinc-500">
-                      ...
-                    </span>
-                  ) : (
-                    <button
-                      key={pageNum}
-                      onClick={() => setPage(pageNum)}
-                      className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all ${
-                        page === pageNum
-                          ? 'bg-purple-600 text-white shadow-glow-sm'
-                          : 'bg-vault-card border border-zinc-800 hover:border-purple-400 text-zinc-300'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  )
-                )}
-              </div>
-
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="p-1.5 rounded-lg bg-vault-card border border-zinc-800 hover:border-purple-400 text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="Next Page"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-
-              <button
-                onClick={() => setPage(totalPages)}
-                disabled={page >= totalPages}
-                className="p-1.5 rounded-lg bg-vault-card border border-zinc-800 hover:border-purple-400 text-zinc-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="Last Page"
-              >
-                <ChevronsRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Server-Side Pagination Bar */}
+        <TablePagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          limit={limit}
+          onPageChange={setPage}
+          onLimitChange={handleLimitChange}
+          entityName="games"
+        />
       </div>
 
       {/* Add / Edit Game Modal */}
@@ -783,31 +702,24 @@ const ManageGames = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                <div>
-                  <label className="block font-semibold text-zinc-300 mb-1">Cover Image URL *</label>
-                  <input
-                    type="url"
-                    required
-                    placeholder="https://res.cloudinary.com/..."
-                    value={formData.coverImage}
-                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
-                  />
-                  <span className="text-[10px] text-zinc-500 mt-0.5 block">
-                    Use Media Library to upload and copy URL
-                  </span>
-                </div>
+                <ImageUploadCropper
+                  label="Cover Image (Vertical Poster)"
+                  required
+                  value={formData.coverImage}
+                  onChange={(url) => setFormData((prev) => ({ ...prev, coverImage: url }))}
+                  aspect={3 / 4}
+                  tag="game-cover"
+                  helperText="Aspect ratio 3:4 portrait optimal for game box cover"
+                />
 
-                <div>
-                  <label className="block font-semibold text-zinc-300 mb-1">Banner Image URL</label>
-                  <input
-                    type="url"
-                    placeholder="Wide cinematic banner image"
-                    value={formData.bannerImage}
-                    onChange={(e) => setFormData({ ...formData, bannerImage: e.target.value })}
-                    className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
-                  />
-                </div>
+                <ImageUploadCropper
+                  label="Banner Image (Widescreen)"
+                  value={formData.bannerImage}
+                  onChange={(url) => setFormData((prev) => ({ ...prev, bannerImage: url }))}
+                  aspect={16 / 9}
+                  tag="game-banner"
+                  helperText="Aspect ratio 16:9 cinematic widescreen header"
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">

@@ -10,6 +10,11 @@ const TablePagination = ({
   onLimitChange,
   entityName = 'items',
 }) => {
+  // If no data OR 10 or fewer items, hide pagination and limit controls completely
+  if (!total || total <= 10) {
+    return null;
+  }
+
   const startEntry = total === 0 ? 0 : (page - 1) * limit + 1;
   const endEntry = Math.min(page * limit, total);
 

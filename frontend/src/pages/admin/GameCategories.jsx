@@ -13,6 +13,7 @@ import {
   Square,
   MinusSquare,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
@@ -106,6 +107,7 @@ const GameCategories = () => {
       setBulkDeleting(true);
       const res = await api.post('/categories/admin/bulk-delete', { ids: selectedIds });
       if (res.data.success) {
+        toast.success(`Successfully deleted ${selectedIds.length} categories.`);
         setActionFeedback({
           type: 'success',
           text: `Successfully deleted ${selectedIds.length} categories.`,
@@ -116,9 +118,11 @@ const GameCategories = () => {
       }
     } catch (err) {
       console.error('Bulk delete failed:', err);
+      const errText = err.response?.data?.message || 'Failed to delete selected categories.';
+      toast.error(errText);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to delete selected categories.',
+        text: errText,
       });
       setIsBulkDeleteOpen(false);
     } finally {
@@ -165,35 +169,43 @@ const GameCategories = () => {
 
     if (!formData.name.trim()) {
       setFormError('Category Name is required.');
+      toast.error('Category Name is required.');
       return;
     }
 
     try {
       if (editingCategory) {
         await api.put(`/categories/admin/${editingCategory._id}`, formData);
+        toast.success(`Category "${formData.name}" updated successfully!`);
         setActionFeedback({ type: 'success', text: `Category "${formData.name}" updated successfully.` });
       } else {
         await api.post('/categories/admin', formData);
+        toast.success(`Category "${formData.name}" created successfully!`);
         setActionFeedback({ type: 'success', text: `Category "${formData.name}" created successfully.` });
       }
       setIsModalOpen(false);
       fetchCategories();
     } catch (err) {
-      setFormError(err.response?.data?.message || 'Error saving category.');
+      const errText = err.response?.data?.message || 'Error saving category.';
+      setFormError(errText);
+      toast.error(errText);
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await api.delete(`/categories/admin/${id}`);
+      toast.success('Category deleted successfully.');
       setActionFeedback({ type: 'success', text: 'Category deleted successfully.' });
       setSelectedIds((prev) => prev.filter((item) => item !== id));
       setDeleteConfirmationId(null);
       fetchCategories();
     } catch (err) {
+      const errText = err.response?.data?.message || 'Failed to delete category.';
+      toast.error(errText);
       setActionFeedback({
         type: 'error',
-        text: err.response?.data?.message || 'Failed to delete category.',
+        text: errText,
       });
       setDeleteConfirmationId(null);
     }
