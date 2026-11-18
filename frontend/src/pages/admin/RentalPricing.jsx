@@ -19,6 +19,7 @@ import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
 import BulkDeleteModal from '../../components/admin/BulkDeleteModal';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const RentalPricing = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -725,25 +726,16 @@ const RentalPricing = () => {
         </div>
       )}
 
-      {/* Delete confirmation */}
-      {deleteConfirmationId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm" onClick={() => setDeleteConfirmationId(null)}>
-          <div className="w-full max-w-sm bg-vault-card border border-rose-500/30 rounded-2xl p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-gaming font-bold text-lg text-white">Delete Pricing Tier?</h3>
-            <p className="mt-1.5 text-xs text-zinc-300">
-              This will remove this pricing option from the game.
-            </p>
-            <div className="mt-5 flex items-center justify-end gap-2">
-              <button onClick={() => setDeleteConfirmationId(null)} className="px-2.5 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-xs">
-                Cancel
-              </button>
-              <button onClick={() => handleDelete(deleteConfirmationId)} className="px-2.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-semibold">
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete confirmation modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteConfirmationId}
+        onClose={() => setDeleteConfirmationId(null)}
+        onConfirm={() => handleDelete(deleteConfirmationId)}
+        title="Delete Pricing Tier?"
+        itemName={pricingTiers.find((t) => t._id === deleteConfirmationId)?.durationLabel || 'Selected Pricing Tier'}
+        description="Are you sure you want to delete this pricing tier? This duration option will no longer be available for customers renting this game."
+        confirmText="Confirm Delete"
+      />
 
       {/* Bulk Delete Modal */}
       <BulkDeleteModal

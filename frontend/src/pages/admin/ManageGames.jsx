@@ -21,6 +21,8 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import ImageUploadCropper from '../../components/admin/ImageUploadCropper';
+import BulkDeleteModal from '../../components/admin/BulkDeleteModal';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const ManageGames = () => {
   const [games, setGames] = useState([]);
@@ -894,114 +896,31 @@ const ManageGames = () => {
         </div>
       )}
 
-      {/* Single Delete Confirmation Dialog */}
-      {deleteConfirmationId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm"
-          onClick={() => setDeleteConfirmationId(null)}
-        >
-          <div
-            className="w-full max-w-sm bg-vault-card border border-rose-500/30 rounded-2xl p-5 sm:p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="font-gaming font-bold text-lg sm:text-xl text-white">Confirm Removal</h3>
-            <p className="mt-1.5 text-xs text-zinc-300 leading-relaxed">
-              Are you sure you want to remove this game? Choose soft archive or permanent deletion.
-            </p>
-            <div className="mt-5 flex items-center justify-end gap-2 sm:gap-2.5">
-              <button
-                onClick={() => setDeleteConfirmationId(null)}
-                className="px-2.5 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-xs"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(false)}
-                className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold"
-              >
-                Archive
-              </button>
-              <button
-                onClick={() => handleDelete(true)}
-                className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Custom Gaming Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteConfirmationId}
+        onClose={() => setDeleteConfirmationId(null)}
+        onConfirm={() => handleDelete(true)}
+        supportArchive={true}
+        onArchive={() => handleDelete(false)}
+        archiveText="Soft Archive"
+        confirmText="Permanent Delete"
+        title="Remove Game?"
+        itemName={games.find((g) => g._id === deleteConfirmationId)?.title || 'Selected Game'}
+        description="Are you sure you want to remove this game? You can soft-archive it (hide from users) or permanently wipe it and its pricing tiers from the database."
+      />
 
-      {/* Bulk Delete Confirmation Dialog */}
-      {isBulkDeleteOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm"
-          onClick={() => !bulkDeleting && setIsBulkDeleteOpen(false)}
-        >
-          <div
-            className="w-full max-w-md bg-vault-card border border-rose-500/30 rounded-2xl p-5 sm:p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center gap-2.5 text-rose-400 mb-2">
-              <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                <Trash2 className="w-5 h-5 text-rose-400" />
-              </div>
-              <h3 className="font-gaming font-bold text-lg sm:text-xl text-white">
-                Bulk Remove Games
-              </h3>
-            </div>
-
-            <p className="mt-2 text-xs text-zinc-300 leading-relaxed">
-              You have selected <span className="font-bold text-white text-sm">{selectedIds.length}</span> games.
-              Choose whether to soft-archive them (hide from users) or permanently wipe them and their pricing tiers from the database.
-            </p>
-
-            <div className="mt-4 p-3 rounded-xl bg-vault-surface border border-zinc-800 text-[11px] text-zinc-400 space-y-1.5">
-              <div className="flex items-center gap-2 text-amber-300 font-semibold">
-                <Archive className="w-3.5 h-3.5" />
-                <span>Archive Option (Recommended)</span>
-              </div>
-              <p>Hides games from catalog and disables booking while preserving historical data.</p>
-              <div className="flex items-center gap-2 text-rose-400 font-semibold pt-1">
-                <AlertCircle className="w-3.5 h-3.5" />
-                <span>Permanent Delete</span>
-              </div>
-              <p>Irreversible deletion of games and associated pricing matrices.</p>
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center justify-end gap-2 sm:gap-2.5">
-              <button
-                type="button"
-                disabled={bulkDeleting}
-                onClick={() => setIsBulkDeleteOpen(false)}
-                className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold disabled:opacity-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                disabled={bulkDeleting}
-                onClick={() => handleBulkDelete(false)}
-                className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-sm disabled:opacity-50 flex items-center gap-1.5"
-              >
-                <Archive className="w-3.5 h-3.5" />
-                <span>Archive ({selectedIds.length})</span>
-              </button>
-
-              <button
-                type="button"
-                disabled={bulkDeleting}
-                onClick={() => handleBulkDelete(true)}
-                className="px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold shadow-glow-sm disabled:opacity-50 flex items-center gap-1.5"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>{bulkDeleting ? 'Deleting...' : `Delete (${selectedIds.length})`}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Custom Gaming Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={isBulkDeleteOpen}
+        onClose={() => setIsBulkDeleteOpen(false)}
+        onConfirm={handleBulkDelete}
+        count={selectedIds.length}
+        entityName="games"
+        supportArchive={true}
+        loading={bulkDeleting}
+        description={`You have selected ${selectedIds.length} games. Choose whether to soft-archive them (hide from users) or permanently wipe them and their pricing tiers from the database.`}
+      />
     </div>
   );
 };

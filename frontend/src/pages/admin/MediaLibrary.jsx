@@ -15,6 +15,7 @@ import {
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 import ImageCropModal from '../../components/admin/ImageCropModal';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const MediaLibrary = () => {
   const [mediaList, setMediaList] = useState([]);
@@ -25,6 +26,10 @@ const MediaLibrary = () => {
   const [copiedId, setCopiedId] = useState(null);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Delete modal states
+  const [deleteItem, setDeleteItem] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Stretchable crop modal states
   const [tempImage, setTempImage] = useState(null);
@@ -112,15 +117,23 @@ const MediaLibrary = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this media asset?')) return;
+  const handleDeleteClick = (item) => {
+    setDeleteItem(item);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteItem) return;
     try {
-      await api.delete(`/admin/media/${id}`);
-      toast.success('Media deleted successfully.');
+      setDeleting(true);
+      await api.delete(`/admin/media/${deleteItem._id}`);
+      toast.success('Media asset permanently deleted.');
+      setDeleteItem(null);
       fetchMedia();
     } catch (err) {
       console.error('Delete failed:', err);
       toast.error(err.response?.data?.message || 'Failed to delete media asset.');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -268,7 +281,7 @@ const MediaLibrary = () => {
                 </button>
 
                 <button
-                  onClick={() => handleDelete(item._id)}
+                  onClick={() => handleDeleteClick(item)}
                   className="p-1.5 rounded-lg bg-vault-surface hover:bg-rose-950/40 border border-zinc-800 hover:border-rose-500/40 text-zinc-400 hover:text-rose-400 transition-colors"
                   title="Delete Image"
                 >
@@ -291,6 +304,17 @@ const MediaLibrary = () => {
           isUploading={uploading}
         />
       )}
+
+      {/* Custom Gaming Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteItem}
+        onClose={() => setDeleteItem(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Media Asset?"
+        itemName={deleteItem?.title || deleteItem?.fileName || 'Image Asset'}
+        description="Are you sure you want to delete this media asset? It will be permanently removed from Cloudinary CDN and will no longer load in forms."
+        loading={deleting}
+      />
     </div>
   );
 };

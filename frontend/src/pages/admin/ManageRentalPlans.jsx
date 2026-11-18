@@ -17,6 +17,7 @@ import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
 import BulkDeleteModal from '../../components/admin/BulkDeleteModal';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const ManageRentalPlans = () => {
   const [plans, setPlans] = useState([]);
@@ -674,31 +675,16 @@ const ManageRentalPlans = () => {
         </div>
       )}
 
-      {/* Delete confirmation */}
-      {deleteConfirmationId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-sm" onClick={() => setDeleteConfirmationId(null)}>
-          <div className="w-full max-w-sm bg-vault-card border border-rose-500/30 rounded-2xl p-5 sm:p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="font-gaming font-bold text-lg sm:text-xl text-white">Delete Rental Plan?</h3>
-            <p className="mt-1.5 text-xs text-zinc-300 leading-relaxed">
-              Are you sure you want to delete this rental plan? This cannot be undone.
-            </p>
-            <div className="mt-5 flex items-center justify-end gap-2 sm:gap-2.5">
-              <button
-                onClick={() => setDeleteConfirmationId(null)}
-                className="px-2.5 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-xs"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleDelete(deleteConfirmationId)}
-                className="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete confirmation modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteConfirmationId}
+        onClose={() => setDeleteConfirmationId(null)}
+        onConfirm={() => handleDelete(deleteConfirmationId)}
+        title="Delete Rental Plan?"
+        itemName={plans.find((p) => p._id === deleteConfirmationId)?.name || 'Selected Rental Plan'}
+        description="Are you sure you want to permanently delete this rental plan? This package will no longer be visible to customers on the website."
+        confirmText="Confirm Delete"
+      />
 
       {/* Bulk Delete Modal */}
       <BulkDeleteModal

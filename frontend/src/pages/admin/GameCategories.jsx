@@ -18,6 +18,7 @@ import api from '../../services/api';
 import TablePagination from '../../components/admin/TablePagination';
 import BulkActionBar from '../../components/admin/BulkActionBar';
 import BulkDeleteModal from '../../components/admin/BulkDeleteModal';
+import DeleteConfirmModal from '../../components/admin/DeleteConfirmModal';
 
 const GameCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -498,25 +499,16 @@ const GameCategories = () => {
         </div>
       )}
 
-      {/* Delete confirmation */}
-      {deleteConfirmationId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-sm bg-vault-card border border-rose-500/30 rounded-2xl p-6 shadow-2xl">
-            <h3 className="font-gaming font-bold text-xl text-white">Delete Category?</h3>
-            <p className="mt-2 text-xs text-zinc-300">
-              Categories with assigned games cannot be deleted. Are you sure you want to proceed?
-            </p>
-            <div className="mt-6 flex items-center justify-end gap-3">
-              <button onClick={() => setDeleteConfirmationId(null)} className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-xs">
-                Cancel
-              </button>
-              <button onClick={() => handleDelete(deleteConfirmationId)} className="px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-semibold">
-                Confirm Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete confirmation modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteConfirmationId}
+        onClose={() => setDeleteConfirmationId(null)}
+        onConfirm={() => handleDelete(deleteConfirmationId)}
+        title="Delete Game Category?"
+        itemName={categories.find((c) => c._id === deleteConfirmationId)?.name || 'Selected Category'}
+        description="Categories with assigned games cannot be deleted. Are you sure you want to permanently delete this category?"
+        confirmText="Confirm Delete"
+      />
 
       {/* Bulk Delete Modal */}
       <BulkDeleteModal
