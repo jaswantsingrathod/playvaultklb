@@ -20,9 +20,11 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useWebsite } from '../../context/WebsiteContext';
 
 const AdminLayout = () => {
   const { admin, logout } = useAuth();
+  const { settings } = useWebsite();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
@@ -56,9 +58,12 @@ const AdminLayout = () => {
         <div className="h-16 flex items-center px-6 border-b border-purple-500/15 shrink-0">
           <Link to="/admin/dashboard" className="flex items-center gap-2.5">
             <img
-              src="/logo.jpeg"
+              src={settings?.logoUrl || '/logo.jpeg'}
               alt="PlayVault Logo"
               className="h-8 w-auto object-contain rounded-lg border border-purple-500/30 shadow-glow-sm bg-vault-card p-0.5"
+              onError={(e) => {
+                e.target.src = '/logo.jpeg';
+              }}
             />
             <div>
               <span className="font-gaming font-extrabold text-xl text-white tracking-wider">
@@ -169,7 +174,14 @@ const AdminLayout = () => {
             >
               <div className="h-14 flex items-center justify-between px-4 border-b border-purple-500/15">
                 <div className="flex items-center gap-2">
-                  <img src="/logo.jpeg" alt="Logo" className="h-7 w-auto object-contain rounded-lg border border-purple-500/30" />
+                  <img
+                    src={settings?.logoUrl || '/logo.jpeg'}
+                    alt="Logo"
+                    className="h-7 w-auto object-contain rounded-lg border border-purple-500/30"
+                    onError={(e) => {
+                      e.target.src = '/logo.jpeg';
+                    }}
+                  />
                   <span className="font-gaming font-bold text-base text-white">PLAYVAULT ADMIN</span>
                 </div>
                 <button

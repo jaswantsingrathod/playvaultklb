@@ -15,6 +15,7 @@ const WebsiteContent = () => {
   const [form, setForm] = useState({
     siteName: 'PlayVaultKLB',
     tagline: 'Premium PS5 Rental Services',
+    logoUrl: '',
     heroHeading: 'YOUR NEXT GAMING SESSION STARTS HERE.',
     heroSubheading:
       'Experience premium PlayStation 5 gaming without the commitment of buying a console. Pick your favourite games, choose your rental duration and start playing.',
@@ -114,10 +115,10 @@ const WebsiteContent = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6 text-xs">
-        {/* Brand Identity */}
+        {/* Brand Identity & Logo */}
         <div className="p-6 rounded-2xl bg-vault-card border border-purple-500/15 space-y-4">
           <h3 className="font-gaming font-bold text-lg text-white uppercase tracking-wider text-purple-300">
-            Brand Identity
+            Brand Identity & Logo
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -138,6 +139,17 @@ const WebsiteContent = () => {
                 className="w-full px-3 py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
               />
             </div>
+          </div>
+
+          <div className="pt-2">
+            <ImageUploadCropper
+              label="Website & Navbar Logo"
+              value={form.logoUrl}
+              onChange={(url) => setForm((prev) => ({ ...prev, logoUrl: url }))}
+              aspect={1}
+              tag="logo"
+              helperText="Upload official logo (Square or transparent PNG/JPG). This logo displays across the Navbar, Footer, and Admin Portal."
+            />
           </div>
         </div>
 

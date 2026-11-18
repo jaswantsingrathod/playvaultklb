@@ -20,9 +20,9 @@ const Footer = () => {
         △ ◯ ✕ ▢
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-8 sm:pb-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10">
           {/* Brand Info */}
-          <div className="sm:col-span-2 space-y-3.5">
+          <div className="md:col-span-2 lg:col-span-2 space-y-3.5">
             <div className="flex items-center gap-2.5 sm:gap-3">
               <img
                 src={settings.logoUrl || '/logo.jpeg'}
@@ -90,30 +90,6 @@ const Footer = () => {
               </li>
               <li>
                 <a href="#contact" className="hover:text-purple-400 transition-colors">Book on WhatsApp</a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Rental Plans Overview */}
-          <div>
-            <h4 className="font-gaming font-bold text-white text-sm sm:text-base tracking-wider uppercase mb-3 sm:mb-4">
-              Popular Plans
-            </h4>
-            <ul className="space-y-1.5 sm:space-y-2 text-xs">
-              <li>
-                <a href="#plans" className="hover:text-purple-400 transition-colors">1-Day Plan (8 hrs) – ₹699</a>
-              </li>
-              <li>
-                <a href="#plans" className="hover:text-purple-400 transition-colors">2-Days Plan (32 hrs) – ₹1,399</a>
-              </li>
-              <li>
-                <a href="#plans" className="hover:text-purple-400 transition-colors">3-Days Plan (56 hrs) – ₹1,799</a>
-              </li>
-              <li>
-                <a href="#plans" className="hover:text-purple-400 transition-colors">4-Days Plan (80 hrs) – ₹2,499</a>
-              </li>
-              <li>
-                <a href="#plans" className="hover:text-purple-400 transition-colors">1-Week Plan (168 hrs) – ₹3,999</a>
               </li>
             </ul>
           </div>
