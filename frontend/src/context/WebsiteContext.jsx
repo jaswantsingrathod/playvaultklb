@@ -22,7 +22,7 @@ export const WebsiteProvider = ({ children }) => {
     contactPhone: '+91 8904004036',
     contactEmail: 'Playvaultklb@gmail.com',
     googleMapsUrl:
-      "https://www.google.com/maps/place/17%C2%B017'53.7%22N+76%C2%B049'49.0%22E/@17.2983117,76.829671,19z/data=!4m4!3m3!8m2!3d17.29825!4d76.8302778?hl=en&entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D",
+      'https://www.google.co.in/search?kgmid=/g/11p2x68xw2&q=PlayVault+KLB+-+PS5+%26+Gaming+Console+Rentals',
     address: 'Kalaburagi (Gulbarga), Karnataka, India',
     workingHours: 'Everyday: 10:00 AM – 11:00 PM (WhatsApp 24/7)',
     aboutTitle: 'About PlayVaultKLB',

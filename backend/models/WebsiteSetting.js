@@ -100,7 +100,7 @@ const websiteSettingSchema = new mongoose.Schema(
     },
     googleMapsUrl: {
       type: String,
-      default: "https://www.google.com/maps/place/17%C2%B017'53.7%22N+76%C2%B049'49.0%22E/@17.2983117,76.829671,19z/data=!4m4!3m3!8m2!3d17.29825!4d76.8302778?hl=en&entry=ttu&g_ep=EgoyMDI2MTExMC4wIKXMDSoASAFQAw%3D%3D",
+      default: 'https://www.google.co.in/search?kgmid=/g/11p2x68xw2&q=PlayVault+KLB+-+PS5+%26+Gaming+Console+Rentals',
       trim: true,
     },
     address: {
