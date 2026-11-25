@@ -7,7 +7,6 @@ import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ManageGames from './pages/admin/ManageGames';
 import GameCategories from './pages/admin/GameCategories';
-import RentalPricing from './pages/admin/RentalPricing';
 import ManageRentalPlans from './pages/admin/ManageRentalPlans';
 import WebsiteContent from './pages/admin/WebsiteContent';
 import MediaLibrary from './pages/admin/MediaLibrary';
@@ -68,7 +67,7 @@ function App() {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="games" element={<ManageGames />} />
           <Route path="categories" element={<GameCategories />} />
-          <Route path="pricing" element={<RentalPricing />} />
+          <Route path="pricing" element={<Navigate to="/admin/games" replace />} />
           <Route path="rental-plans" element={<ManageRentalPlans />} />
           <Route path="content" element={<WebsiteContent />} />
           <Route path="media" element={<MediaLibrary />} />

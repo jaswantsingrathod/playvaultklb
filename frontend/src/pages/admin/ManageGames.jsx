@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Gamepad2,
   Plus,
@@ -8,7 +7,6 @@ import {
   Trash2,
   X,
   Star,
-  Coins,
   Flame,
   AlertCircle,
   CheckCircle2,
@@ -262,8 +260,8 @@ const ManageGames = () => {
       const payload = {
         ...formData,
         hourlyPrice: 0,
-        dailyPrice: Number(formData.dailyPrice),
-        specialPrice: formData.specialPrice ? Number(formData.specialPrice) : null,
+        dailyPrice: 0,
+        specialPrice: null,
         rating: Number(formData.rating),
         releaseYear: Number(formData.releaseYear),
         tags: formData.tags ? formData.tags.split(',').map((t) => t.trim()) : [],
@@ -455,8 +453,6 @@ const ManageGames = () => {
                 </th>
                 <th className="py-2.5 px-3 sm:px-4">Game</th>
                 <th className="py-2.5 px-3 sm:px-4">Genre / Category</th>
-                <th className="py-2.5 px-3 sm:px-4">Base Pricing</th>
-                <th className="py-2.5 px-3 sm:px-4">Pricing Engine</th>
                 <th className="py-2.5 px-3 sm:px-4 text-center">Availability</th>
                 <th className="py-2.5 px-3 sm:px-4 text-center">Featured</th>
                 <th className="py-2.5 px-3 sm:px-4 text-center">Status</th>
@@ -466,13 +462,13 @@ const ManageGames = () => {
             <tbody className="divide-y divide-purple-500/10">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="py-10 text-center text-zinc-400">
+                  <td colSpan="7" className="py-10 text-center text-zinc-400">
                     Loading games from database...
                   </td>
                 </tr>
               ) : games.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="py-10 text-center text-zinc-400">
+                  <td colSpan="7" className="py-10 text-center text-zinc-400">
                     No games found matching criteria. Click "Add New Game" to create one.
                   </td>
                 </tr>
@@ -533,25 +529,6 @@ const ManageGames = () => {
                       <td className="py-3 px-3 sm:px-4">
                         <div className="font-medium text-white">{game.genre}</div>
                         <div className="text-[10px] text-zinc-400">{game.category?.name || 'General'}</div>
-                      </td>
-
-                      {/* Base Pricing */}
-                      <td className="py-3 px-3 sm:px-4 font-mono">
-                        <div className="text-emerald-400 font-bold">₹{game.dailyPrice}/day</div>
-                        {game.specialPrice ? (
-                          <div className="text-[10px] text-purple-300">Promo: ₹{game.specialPrice}</div>
-                        ) : null}
-                      </td>
-
-                      {/* Pricing Engine Link */}
-                      <td className="py-3 px-3 sm:px-4">
-                        <Link
-                          to={`/admin/pricing?gameId=${game._id}`}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-950/40 hover:bg-purple-900/50 border border-purple-500/30 text-purple-300 text-[10px] font-semibold transition-colors"
-                        >
-                          <Coins className="w-3 h-3 shrink-0" />
-                          <span>{game.pricingCount || 0} Tiers</span>
-                        </Link>
                       </td>
 
                       {/* Available Toggle */}
@@ -761,39 +738,6 @@ const ManageGames = () => {
                     onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
                     className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
                   />
-                </div>
-              </div>
-
-              {/* Pricing Section */}
-              <div className="p-3 sm:p-4 rounded-xl bg-vault-surface/60 border border-purple-500/15">
-                <div className="font-semibold text-white mb-2 text-xs uppercase tracking-wider text-purple-300">
-                  Rental Pricing (Daily rate & special discount)
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div>
-                    <label className="block font-semibold text-zinc-300 mb-1">Daily Rental Price (₹) *</label>
-                    <input
-                      type="number"
-                      min="0"
-                      required
-                      value={formData.dailyPrice}
-                      onChange={(e) => setFormData({ ...formData, dailyPrice: e.target.value })}
-                      className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-card border border-zinc-800 focus:border-purple-400 text-white outline-none font-mono"
-                      placeholder="e.g. 350"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-zinc-300 mb-1">Special / Promo Price (₹)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="Optional strikethrough rate"
-                      value={formData.specialPrice}
-                      onChange={(e) => setFormData({ ...formData, specialPrice: e.target.value })}
-                      className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-card border border-zinc-800 focus:border-purple-400 text-white outline-none font-mono"
-                    />
-                  </div>
                 </div>
               </div>
 

@@ -48,12 +48,11 @@ const gameSchema = new mongoose.Schema(
       type: Number,
       required: false,
       default: 0,
-      min: [0, 'Price must be positive'],
     },
     dailyPrice: {
       type: Number,
-      required: [true, 'Daily rental price is required'],
-      min: [0, 'Price must be positive'],
+      required: false,
+      default: 0,
     },
     specialPrice: {
       type: Number,

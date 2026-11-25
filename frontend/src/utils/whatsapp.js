@@ -27,25 +27,21 @@ export const createWhatsAppUrl = (phone, message) => {
  */
 export const getGameBookingUrl = ({
   gameTitle,
-  duration = '1 Hour',
-  price = 50,
+  duration = 'PS5 Console Rental',
+  price,
   platform = 'PS5',
   controllers = '1 DualSense Wireless Controller',
   customerName = '',
   deliveryArea = '',
   phone = DEFAULT_PHONE,
 }) => {
-  const formattedPrice = typeof price === 'number' ? price.toLocaleString('en-IN') : price;
-
   const lines = [
-    `🎮 *PLAYVAULT KLB - PS5 GAME RENTAL REQUEST* 🎮`,
+    `🎮 *PLAYVAULT KLB - PS5 CONSOLE & GAME BOOKING* 🎮`,
     ``,
-    `Hello! I would like to book a PlayStation 5 console rental with the following details:`,
+    `Hello! I would like to book a PlayStation 5 console rental with *${gameTitle}*:`,
     ``,
-    `🕹️ *Game Selected:* ${gameTitle}`,
+    `🕹️ *Game Requested:* ${gameTitle}`,
     `⚡ *Platform:* ${platform} (Sony PlayStation 5)`,
-    `⏱️ *Rental Duration:* ${duration}`,
-    `💰 *Rental Amount:* ₹${formattedPrice}`,
     `🎮 *Controllers:* ${controllers}`,
     customerName ? `👤 *Customer Name:* ${customerName}` : '',
     deliveryArea ? `📍 *Delivery Area:* ${deliveryArea}, Kalaburagi` : `📍 *Location:* Kalaburagi, Karnataka`,
@@ -56,7 +52,7 @@ export const getGameBookingUrl = ({
     `  ✓ High-Speed HDMI 2.1 & Power Cables`,
     `  ✓ Free Doorstep Delivery & Setup in Kalaburagi`,
     ``,
-    `Please confirm if this console and game are available for delivery!`,
+    `Please confirm the available rental plans and delivery timing!`,
   ].filter(Boolean).join('\n');
 
   return createWhatsAppUrl(phone, lines);

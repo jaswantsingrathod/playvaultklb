@@ -168,8 +168,7 @@ const GamesCatalogue = () => {
             {filteredGames.map((game) => {
               const quickBookingUrl = getGameBookingUrl({
                 gameTitle: game.title,
-                duration: '1 Day Pass (24 hrs)',
-                price: game.dailyPrice,
+                duration: 'PS5 Console Rental',
                 platform: game.platform || 'PS5',
                 phone: whatsappNumber,
               });
@@ -262,29 +261,16 @@ const GamesCatalogue = () => {
                       </p>
                     </div>
 
-                    {/* Pricing & Booking Row */}
+                    {/* Console Included & Booking Row */}
                     <div className="mt-4 pt-3 border-t border-purple-500/15">
-                      <div className="flex items-baseline justify-between mb-3">
-                        <div>
-                          <div className="text-[9px] uppercase tracking-wider font-semibold text-zinc-400">Daily Pass</div>
-                          <div className="font-gaming font-extrabold text-xl text-white">
-                            ₹{game.dailyPrice}
-                            <span className="text-xs text-zinc-400 font-normal"> /day</span>
-                          </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-1.5 text-xs text-purple-300 font-semibold">
+                          <Gamepad2 className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                          <span>Console Rental Game</span>
                         </div>
-
-                        {game.specialPrice ? (
-                          <div className="text-right">
-                            <div className="text-[9px] uppercase tracking-wider font-semibold text-purple-400">Special Rate</div>
-                            <div className="font-gaming font-extrabold text-base text-emerald-400">
-                              ₹{game.specialPrice}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-right">
-                            <span className="text-[10px] text-zinc-500 font-mono">Doorstep Setup</span>
-                          </div>
-                        )}
+                        <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          Included
+                        </span>
                       </div>
 
                       {/* Tactile Gaming Action Buttons */}
@@ -293,8 +279,8 @@ const GamesCatalogue = () => {
                           onClick={() => setActiveGameModal(game)}
                           className="px-2.5 py-2 rounded-xl bg-purple-950/50 hover:bg-purple-900/70 text-purple-200 hover:text-white border border-purple-500/30 hover:border-purple-400 text-xs font-gaming font-bold tracking-wider uppercase text-center transition-all flex items-center justify-center gap-1.5 shadow-sm"
                         >
-                          <Clock className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                          <span>Rates</span>
+                          <Gamepad2 className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                          <span>Details</span>
                         </button>
 
                         <a
@@ -305,7 +291,7 @@ const GamesCatalogue = () => {
                           title="Instant WhatsApp Booking"
                         >
                           <MessageSquare className="w-3.5 h-3.5 fill-current shrink-0" />
-                          <span>Book</span>
+                          <span>Rent PS5</span>
                         </a>
                       </div>
                     </div>

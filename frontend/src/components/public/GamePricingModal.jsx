@@ -5,27 +5,13 @@ import { useWebsite } from '../../context/WebsiteContext';
 
 const GamePricingModal = ({ game, onClose }) => {
   const { whatsappNumber } = useWebsite();
-  const pricingTiers = game?.pricingTiers || [];
 
-  // Default selected tier: first popular tier or first tier
-  const defaultTier =
-    pricingTiers.find((t) => t.isPopular) ||
-    pricingTiers[0] || {
-      title: '1 Day Pass (24 hrs)',
-      durationHours: 24,
-      price: game?.dailyPrice || 350,
-    };
-
-  const [selectedTier, setSelectedTier] = useState(defaultTier);
   const [controllerCount, setControllerCount] = useState('1'); // '1' | '2'
   const [customerName, setCustomerName] = useState('');
   const [deliveryArea, setDeliveryArea] = useState('');
 
   if (!game) return null;
 
-  // Calculate total: If 2 controllers selected, add ₹50 extra for multiplayer session
-  const controllerFee = controllerCount === '2' ? 50 : 0;
-  const totalPrice = (selectedTier.price || game.dailyPrice || 350) + controllerFee;
   const controllersLabel =
     controllerCount === '2'
       ? '2 DualSense Wireless Controllers (Multiplayer Setup)'
@@ -33,8 +19,7 @@ const GamePricingModal = ({ game, onClose }) => {
 
   const bookingUrl = getGameBookingUrl({
     gameTitle: game.title,
-    duration: selectedTier.title || `${selectedTier.durationHours} Hours`,
-    price: totalPrice,
+    duration: 'PS5 Console Rental',
     platform: game.platform || 'PS5',
     controllers: controllersLabel,
     customerName: customerName.trim(),
@@ -121,83 +106,27 @@ const GamePricingModal = ({ game, onClose }) => {
             </div>
           </div>
 
-          {/* Pricing Tiers Selection Engine */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-purple-400" />
-                <span>Step 1: Choose Duration Tier</span>
-              </label>
-              <span className="text-[10px] text-zinc-400 hidden xs:inline">All tiers include PS5 console</span>
+          {/* Console Included Banner */}
+          <div className="p-3.5 rounded-xl bg-purple-950/40 border border-purple-500/30 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-purple-600/30 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+                <Gamepad2 className="w-4 h-4" />
+              </div>
+              <div>
+                <div className="font-bold text-white text-xs sm:text-sm">Included with PS5 Console Rental</div>
+                <div className="text-[11px] text-zinc-300">Play this game on authentic PlayStation 5 hardware with 4K 60FPS</div>
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {pricingTiers.length > 0 ? (
-                pricingTiers.map((tier) => {
-                  const isSelected = selectedTier?._id === tier._id || selectedTier?.title === tier.title;
-                  return (
-                    <div
-                      key={tier._id || tier.title}
-                      onClick={() => setSelectedTier(tier)}
-                      className={`cursor-pointer rounded-xl p-2.5 border transition-all flex items-center justify-between ${
-                        isSelected
-                          ? 'bg-purple-950/60 border-purple-400 shadow-glow-sm'
-                          : 'bg-vault-surface/60 border-zinc-800 hover:border-purple-500/30 hover:bg-vault-surface'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 min-w-0 pr-2">
-                        <div
-                          className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
-                            isSelected
-                              ? 'bg-purple-600 border-purple-400 text-white'
-                              : 'border-zinc-600 text-transparent'
-                          }`}
-                        >
-                          <Check className="w-2.5 h-2.5 stroke-[3]" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <span className="font-semibold text-xs sm:text-sm text-white truncate">{tier.title}</span>
-                            {tier.badge && (
-                              <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 shrink-0">
-                                {tier.badge}
-                              </span>
-                            )}
-                          </div>
-                          {tier.description && (
-                            <div className="text-[10px] text-zinc-400 truncate">{tier.description}</div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <div className="font-gaming font-bold text-sm sm:text-base text-emerald-400">
-                          ₹{tier.price}
-                        </div>
-                        {tier.originalPrice && (
-                          <div className="text-[10px] text-zinc-500 line-through">
-                            ₹{tier.originalPrice}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="col-span-2 p-3 rounded-xl bg-vault-surface border border-zinc-800 text-center">
-                  <div className="text-xs font-semibold text-white">Standard Daily Rental</div>
-                  <div className="text-base font-gaming font-bold text-emerald-400 mt-0.5">₹{game.dailyPrice} / Day</div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">Doorstep PS5 Console Setup</div>
-                </div>
-              )}
-            </div>
+            <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold shrink-0">
+              Free with Console
+            </span>
           </div>
 
           {/* Controllers Option */}
           <div>
             <label className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-purple-300 flex items-center gap-1.5 mb-2">
               <Gamepad2 className="w-3.5 h-3.5 text-purple-400" />
-              <span>Step 2: DualSense Wireless Controllers</span>
+              <span>Step 1: DualSense Wireless Controllers</span>
             </label>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <button
@@ -223,7 +152,7 @@ const GamePricingModal = ({ game, onClose }) => {
                 }`}
               >
                 <div className="font-bold text-white text-xs">2 Controllers</div>
-                <div className="text-[10px] text-purple-300">+₹50 (Multiplayer)</div>
+                <div className="text-[10px] text-purple-300">Multiplayer Setup</div>
               </button>
             </div>
           </div>
@@ -232,7 +161,7 @@ const GamePricingModal = ({ game, onClose }) => {
           <div className="p-3 rounded-xl bg-vault-surface/80 border border-purple-500/15 space-y-2.5">
             <div className="flex items-center gap-1 text-[11px] font-bold text-zinc-300 uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              <span>Step 3: Your Delivery Details (Sent on WhatsApp)</span>
+              <span>Step 2: Delivery Details (Sent via WhatsApp)</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -251,7 +180,7 @@ const GamePricingModal = ({ game, onClose }) => {
               </div>
 
               <div>
-                <label className="block text-[11px] text-zinc-400 mb-0.5">Delivery Landmark / Area in KLB</label>
+                <label className="block text-[11px] text-zinc-400 mb-0.5">Delivery Area in Kalaburagi</label>
                 <div className="relative">
                   <MapPin className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                   <input
@@ -271,11 +200,10 @@ const GamePricingModal = ({ game, onClose }) => {
         <div className="p-3.5 sm:p-4 bg-vault-surface/95 border-t border-purple-500/20 flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
           <div className="text-center sm:text-left w-full sm:w-auto">
             <div className="text-[10px] text-zinc-400 uppercase tracking-wide">
-              {game.title} • {selectedTier.title} ({controllerCount} {controllerCount === '1' ? 'Controller' : 'Controllers'})
+              {game.title} • {controllerCount === '1' ? '1 Controller' : '2 Controllers'}
             </div>
-            <div className="text-xl sm:text-2xl font-gaming font-extrabold text-white flex items-center justify-center sm:justify-start gap-1">
-              <span className="text-emerald-400">₹{totalPrice}</span>
-              <span className="text-xs font-normal text-zinc-400">Total Rental</span>
+            <div className="text-sm font-semibold text-emerald-400 flex items-center justify-center sm:justify-start gap-1">
+              <span>Included with PS5 Rental Plan</span>
             </div>
           </div>
 
@@ -286,7 +214,7 @@ const GamePricingModal = ({ game, onClose }) => {
             className="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-2 transition-transform transform active:scale-95 whitespace-nowrap"
           >
             <MessageSquare className="w-4 h-4 fill-current shrink-0" />
-            <span>Send Details via WhatsApp</span>
+            <span>Book PS5 with this Game</span>
           </a>
         </div>
       </div>

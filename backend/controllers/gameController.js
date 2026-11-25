@@ -272,10 +272,10 @@ const createGame = async (req, res, next) => {
       defaultPricingTiers,
     } = req.body;
 
-    if (!title || !coverImage || !genre || dailyPrice === undefined) {
+    if (!title || !coverImage || !genre) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide Title, Cover Image, Genre, and Daily Price.',
+        message: 'Please provide Game Title, Cover Image, and Genre.',
       });
     }
 
@@ -296,9 +296,9 @@ const createGame = async (req, res, next) => {
       genre: genre.trim(),
       category: category || null,
       platform: platform || 'PS5',
-      hourlyPrice: hourlyPrice !== undefined ? Number(hourlyPrice) : 0,
-      dailyPrice: Number(dailyPrice),
-      specialPrice: specialPrice ? Number(specialPrice) : null,
+      hourlyPrice: 0,
+      dailyPrice: 0,
+      specialPrice: null,
       isAvailable: isAvailable !== undefined ? isAvailable : true,
       isFeatured: isFeatured !== undefined ? isFeatured : false,
       isActive: isActive !== undefined ? isActive : true,
@@ -310,68 +310,11 @@ const createGame = async (req, res, next) => {
       displayOrder: displayOrder ? Number(displayOrder) : 0,
     });
 
-    // Auto-create default tiered pricing (Daily passes for doorstep console rental)
-    const baseDaily = Number(dailyPrice) || 350;
-    const standardTiers = defaultPricingTiers || [
-      {
-        durationHours: 24,
-        title: '1 Day Pass (24 hrs)',
-        price: baseDaily,
-        pricingType: 'daily',
-        description: 'Full 24 hours doorstep console rental',
-        isActive: true,
-        displayOrder: 1,
-      },
-      {
-        durationHours: 48,
-        title: '2 Days Weekend Pass',
-        price: Math.round(baseDaily * 1.8),
-        originalPrice: baseDaily * 2,
-        pricingType: 'multi-day',
-        badge: 'Popular',
-        isPopular: true,
-        description: '48 hours non-stop gaming session',
-        isActive: true,
-        displayOrder: 2,
-      },
-      {
-        durationHours: 72,
-        title: '3 Days Pro Pass',
-        price: Math.round(baseDaily * 2.5),
-        originalPrice: baseDaily * 3,
-        pricingType: 'multi-day',
-        badge: 'Save 15%',
-        description: '72 hours extended rental pass',
-        isActive: true,
-        displayOrder: 3,
-      },
-      {
-        durationHours: 168,
-        title: '7 Days Weekly Marathon',
-        price: Math.round(baseDaily * 5.0),
-        originalPrice: baseDaily * 7,
-        pricingType: 'weekly',
-        badge: 'Best Value',
-        description: 'Full week doorstep console rental',
-        isActive: true,
-        displayOrder: 4,
-      },
-    ];
-
-    await Promise.all(
-      standardTiers.map((tier) =>
-        GamePricing.create({
-          game: game._id,
-          ...tier,
-        })
-      )
-    );
-
-    await logActivity(req, 'CREATE_GAME', 'Games', `Created game: ${game.title} (Daily: ₹${game.dailyPrice})`);
+    await logActivity(req, 'CREATE_GAME', 'Games', `Created game: ${game.title}`);
 
     res.status(201).json({
       success: true,
-      message: 'Game created successfully with pricing tiers.',
+      message: 'Game created successfully.',
       data: game,
     });
   } catch (error) {

@@ -187,7 +187,7 @@ const ActivityLogs = () => {
         </div>
 
         <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-          {['all', 'Auth', 'Games', 'Categories', 'Pricing', 'RentalPlans', 'Settings', 'Media'].map(
+          {['all', 'Auth', 'Games', 'Categories', 'RentalPlans', 'Settings', 'Media'].map(
             (m) => (
               <button
                 key={m}

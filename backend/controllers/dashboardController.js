@@ -36,7 +36,7 @@ const getDashboardStats = async (req, res, next) => {
       GameCategory.countDocuments(),
       Media.countDocuments(),
       AdminActivityLog.find().sort({ createdAt: -1 }).limit(10),
-      Game.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(5).select('title coverImage hourlyPrice dailyPrice isAvailable isActive genre'),
+      Game.find({ isDeleted: false }).sort({ createdAt: -1 }).limit(5).select('title coverImage isAvailable isActive genre platform'),
       GamePricing.countDocuments({ isActive: true }),
     ]);
 
