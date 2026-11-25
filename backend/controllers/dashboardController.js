@@ -40,11 +40,8 @@ const getDashboardStats = async (req, res, next) => {
       GamePricing.countDocuments({ isActive: true }),
     ]);
 
-    // Average hourly and daily price
-    const gamesPrices = await Game.find({ isDeleted: false, isActive: true }).select('hourlyPrice dailyPrice');
-    const avgHourly = gamesPrices.length
-      ? Math.round(gamesPrices.reduce((acc, g) => acc + (g.hourlyPrice || 0), 0) / gamesPrices.length)
-      : 0;
+    // Average daily price
+    const gamesPrices = await Game.find({ isDeleted: false, isActive: true }).select('dailyPrice');
     const avgDaily = gamesPrices.length
       ? Math.round(gamesPrices.reduce((acc, g) => acc + (g.dailyPrice || 0), 0) / gamesPrices.length)
       : 0;

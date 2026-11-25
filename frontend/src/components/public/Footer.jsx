@@ -189,7 +189,7 @@ const Footer = () => {
             <div className="mt-3 text-xs text-zinc-300 whitespace-pre-line overflow-y-auto leading-relaxed pr-1">
               {activeModal === 'terms'
                 ? settings.termsText ||
-                  '1. Valid government ID proof (Aadhaar / Driving License) required at the time of delivery.\n2. Security deposit is refundable upon return of undamaged equipment.\n3. Equipment must not be physically opened or modified.\n4. Late returns are charged according to standard hourly rates.\n5. Customer is responsible for equipment care during rental period.'
+                  '1. Valid government ID proof (Aadhaar / Driving License) required at the time of delivery.\n2. Security deposit is refundable upon return of undamaged equipment.\n3. Equipment must not be physically opened or modified.\n4. Late returns are charged according to standard daily rates.\n5. Customer is responsible for equipment care during rental period.'
                 : settings.privacyText ||
                   'PlayVaultKLB values your privacy. We collect customer contact and identification information solely for verification, booking processing, and delivery of rental gaming hardware. We never sell, rent, or share customer data with third parties.'}
             </div>

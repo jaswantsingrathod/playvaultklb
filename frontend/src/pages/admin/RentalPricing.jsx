@@ -51,12 +51,12 @@ const RentalPricing = () => {
 
   const initialTierState = {
     game: '',
-    durationHours: 1,
-    title: '1 Hour Quick Play',
-    price: 50,
+    durationHours: 24,
+    title: '1 Day Pass (24 hrs)',
+    price: 350,
     originalPrice: '',
-    pricingType: 'hourly',
-    description: '',
+    pricingType: 'daily',
+    description: 'Full 24 hours doorstep console rental',
     badge: '',
     isPopular: false,
     isActive: true,
@@ -190,11 +190,11 @@ const RentalPricing = () => {
     setEditingTier(tier);
     setFormData({
       game: tier.game?._id || tier.game || '',
-      durationHours: tier.durationHours || 1,
+      durationHours: tier.durationHours || 24,
       title: tier.title || '',
       price: tier.price || 0,
       originalPrice: tier.originalPrice || '',
-      pricingType: tier.pricingType || 'hourly',
+      pricingType: tier.pricingType || 'daily',
       description: tier.description || '',
       badge: tier.badge || '',
       isPopular: tier.isPopular !== undefined ? tier.isPopular : false,
@@ -356,9 +356,7 @@ const RentalPricing = () => {
 
         {selectedGameObj && (
           <div className="px-3 py-1.5 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs text-purple-300 flex items-center gap-2">
-            <span>Base:</span>
-            <span className="font-bold text-white">₹{selectedGameObj.hourlyPrice}/hr</span>
-            <span>•</span>
+            <span>Daily Rate:</span>
             <span className="font-bold text-emerald-400">₹{selectedGameObj.dailyPrice}/day</span>
           </div>
         )}
@@ -472,7 +470,9 @@ const RentalPricing = () => {
                       {/* Duration */}
                       <td className="py-2.5 px-3 sm:px-4 font-mono">
                         <span className="px-2 py-0.5 rounded bg-vault-surface border border-zinc-800 text-zinc-300 text-[11px]">
-                          {tier.durationHours} {tier.durationHours === 1 ? 'Hour' : 'Hours'}
+                          {tier.durationHours >= 24 && tier.durationHours % 24 === 0
+                            ? `${tier.durationHours / 24} ${tier.durationHours / 24 === 1 ? 'Day' : 'Days'} (${tier.durationHours}h)`
+                            : `${tier.durationHours} ${tier.durationHours === 1 ? 'Hour' : 'Hours'}`}
                         </span>
                       </td>
 
@@ -597,7 +597,7 @@ const RentalPricing = () => {
                   <option value="">Select Game</option>
                   {games.map((g) => (
                     <option key={g._id} value={g._id}>
-                      {g.title} (Base: ₹{g.hourlyPrice}/hr)
+                      {g.title} (Daily: ₹{g.dailyPrice}/day)
                     </option>
                   ))}
                 </select>
@@ -608,12 +608,13 @@ const RentalPricing = () => {
                   <label className="block font-semibold text-zinc-300 mb-1">Duration (Hours) *</label>
                   <input
                     type="number"
-                    step="0.5"
-                    min="0.5"
+                    step="1"
+                    min="1"
                     required
                     value={formData.durationHours}
                     onChange={(e) => setFormData({ ...formData, durationHours: e.target.value })}
                     className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none font-mono"
+                    placeholder="24 = 1 Day, 48 = 2 Days"
                   />
                 </div>
 
@@ -624,12 +625,11 @@ const RentalPricing = () => {
                     onChange={(e) => setFormData({ ...formData, pricingType: e.target.value })}
                     className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"
                   >
-                    <option value="hourly">Hourly (1 hr)</option>
-                    <option value="multi-hour">Multi-Hour (2-5 hrs)</option>
-                    <option value="daily">Daily (24 hrs)</option>
-                    <option value="weekly">Weekly (168 hrs)</option>
-                    <option value="package">Package</option>
-                    <option value="promotional">Promo</option>
+                    <option value="daily">Daily (24 hrs / 1 Day)</option>
+                    <option value="multi-day">Multi-Day (2-3 Days)</option>
+                    <option value="weekly">Weekly (7 Days)</option>
+                    <option value="package">Package / Pass</option>
+                    <option value="promotional">Promo Special</option>
                     <option value="custom">Custom</option>
                   </select>
                 </div>
@@ -640,7 +640,7 @@ const RentalPricing = () => {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. 2 Hours Duo Pass, 3 Hours Marathon"
+                  placeholder="e.g. 1 Day Pass, 2 Days Weekend Pass, 7 Days Marathon"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-surface border border-zinc-800 focus:border-purple-400 text-white outline-none"

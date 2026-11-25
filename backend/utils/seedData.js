@@ -461,7 +461,7 @@ const seedDatabase = async () => {
       aboutText:
         'PlayVaultKLB was founded to give gaming enthusiasts in Kalaburagi seamless, affordable access to cutting-edge PlayStation 5 gaming. Whether you need a console for a weekend party, an all-night tournament with friends, or to experience the latest blockbuster titles in 4K HDR, we provide well-maintained PS5 consoles, extra controllers, and top-tier games delivered straight to your door.',
       termsText:
-        '1. Valid government ID proof (Aadhaar / Driving License) required at the time of delivery.\n2. Security deposit is refundable upon return of undamaged equipment.\n3. Equipment must not be physically opened, tampered with, or modified.\n4. Late returns are charged according to standard hourly rates.\n5. Customer is responsible for equipment care during the rental period.',
+        '1. Valid government ID proof (Aadhaar / Driving License) required at the time of delivery.\n2. Security deposit is refundable upon return of undamaged equipment.\n3. Equipment must not be physically opened, tampered with, or modified.\n4. Late returns are charged according to standard daily rates.\n5. Customer is responsible for equipment care during the rental period.',
       privacyText:
         'PlayVaultKLB respects your privacy. We collect customer contact and identification information solely for verification, booking processing, and delivery of rental gaming hardware. We never sell, rent, or share customer data with third parties.',
     });

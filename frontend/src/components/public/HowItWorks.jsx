@@ -13,7 +13,7 @@ const HowItWorks = () => {
     {
       step: '02',
       title: 'Choose Rental Pass',
-      description: 'Select an hourly package or choose 1-Day (8 hrs) up to 7-Day passes tailored to your gaming schedule.',
+      description: 'Select a rental pass from 1-Day (24 hrs) up to 7-Day passes tailored to your gaming schedule.',
       icon: CalendarCheck,
       glyph: '◯',
     },

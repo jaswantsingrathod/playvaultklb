@@ -198,7 +198,7 @@ const AdminDashboard = () => {
                       <div className="text-[10px] sm:text-xs text-zinc-400 flex items-center gap-1.5 mt-0.5 truncate">
                         <span className="text-purple-400 font-medium">{game.genre}</span>
                         <span>•</span>
-                        <span>₹{game.hourlyPrice}/hr</span>
+                        <span>₹{game.dailyPrice}/day</span>
                       </div>
                     </div>
                   </div>

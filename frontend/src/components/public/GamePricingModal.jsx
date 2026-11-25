@@ -11,9 +11,9 @@ const GamePricingModal = ({ game, onClose }) => {
   const defaultTier =
     pricingTiers.find((t) => t.isPopular) ||
     pricingTiers[0] || {
-      title: 'Standard 1 Hour',
-      durationHours: 1,
-      price: game?.hourlyPrice || 50,
+      title: '1 Day Pass (24 hrs)',
+      durationHours: 24,
+      price: game?.dailyPrice || 350,
     };
 
   const [selectedTier, setSelectedTier] = useState(defaultTier);
@@ -25,7 +25,7 @@ const GamePricingModal = ({ game, onClose }) => {
 
   // Calculate total: If 2 controllers selected, add ₹50 extra for multiplayer session
   const controllerFee = controllerCount === '2' ? 50 : 0;
-  const totalPrice = (selectedTier.price || game.hourlyPrice || 50) + controllerFee;
+  const totalPrice = (selectedTier.price || game.dailyPrice || 350) + controllerFee;
   const controllersLabel =
     controllerCount === '2'
       ? '2 DualSense Wireless Controllers (Multiplayer Setup)'
@@ -185,9 +185,9 @@ const GamePricingModal = ({ game, onClose }) => {
                 })
               ) : (
                 <div className="col-span-2 p-3 rounded-xl bg-vault-surface border border-zinc-800 text-center">
-                  <div className="text-xs font-semibold text-white">Standard Hourly Rate</div>
-                  <div className="text-base font-gaming font-bold text-emerald-400 mt-0.5">₹{game.hourlyPrice} / Hour</div>
-                  <div className="text-[10px] text-zinc-400 mt-0.5">₹{game.dailyPrice} Full Day Pass</div>
+                  <div className="text-xs font-semibold text-white">Standard Daily Rental</div>
+                  <div className="text-base font-gaming font-bold text-emerald-400 mt-0.5">₹{game.dailyPrice} / Day</div>
+                  <div className="text-[10px] text-zinc-400 mt-0.5">Doorstep PS5 Console Setup</div>
                 </div>
               )}
             </div>

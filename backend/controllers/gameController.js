@@ -57,8 +57,8 @@ const getPublicGames = async (req, res, next) => {
     }
 
     let sortOption = { displayOrder: 1, createdAt: -1 };
-    if (sort === 'price_asc') sortOption = { hourlyPrice: 1 };
-    if (sort === 'price_desc') sortOption = { hourlyPrice: -1 };
+    if (sort === 'price_asc') sortOption = { dailyPrice: 1 };
+    if (sort === 'price_desc') sortOption = { dailyPrice: -1 };
     if (sort === 'rating') sortOption = { rating: -1 };
     if (sort === 'title') sortOption = { title: 1 };
 
@@ -171,7 +171,7 @@ const getAdminGames = async (req, res, next) => {
 
     let sort = { createdAt: -1 };
     if (sortBy === 'title') sort = { title: sortOrder === 'asc' ? 1 : -1 };
-    if (sortBy === 'hourlyPrice') sort = { hourlyPrice: sortOrder === 'asc' ? 1 : -1 };
+    if (sortBy === 'dailyPrice' || sortBy === 'hourlyPrice') sort = { dailyPrice: sortOrder === 'asc' ? 1 : -1 };
     if (sortBy === 'rating') sort = { rating: sortOrder === 'asc' ? 1 : -1 };
     if (sortBy === 'displayOrder') sort = { displayOrder: 1, createdAt: -1 };
 
@@ -272,10 +272,10 @@ const createGame = async (req, res, next) => {
       defaultPricingTiers,
     } = req.body;
 
-    if (!title || !coverImage || !genre || hourlyPrice === undefined || dailyPrice === undefined) {
+    if (!title || !coverImage || !genre || dailyPrice === undefined) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide Title, Cover Image, Genre, Hourly Price, and Daily Price.',
+        message: 'Please provide Title, Cover Image, Genre, and Daily Price.',
       });
     }
 
@@ -296,7 +296,7 @@ const createGame = async (req, res, next) => {
       genre: genre.trim(),
       category: category || null,
       platform: platform || 'PS5',
-      hourlyPrice: Number(hourlyPrice),
+      hourlyPrice: hourlyPrice !== undefined ? Number(hourlyPrice) : 0,
       dailyPrice: Number(dailyPrice),
       specialPrice: specialPrice ? Number(specialPrice) : null,
       isAvailable: isAvailable !== undefined ? isAvailable : true,
@@ -310,49 +310,49 @@ const createGame = async (req, res, next) => {
       displayOrder: displayOrder ? Number(displayOrder) : 0,
     });
 
-    // Auto-create default tiered pricing if provided or generate standard tiers (1h, 2h, 3h, 5h)
-    const baseHourly = Number(hourlyPrice);
+    // Auto-create default tiered pricing (Daily passes for doorstep console rental)
+    const baseDaily = Number(dailyPrice) || 350;
     const standardTiers = defaultPricingTiers || [
       {
-        durationHours: 1,
-        title: '1 Hour Quick Play',
-        price: baseHourly,
-        pricingType: 'hourly',
-        description: 'Single hour gaming session',
+        durationHours: 24,
+        title: '1 Day Pass (24 hrs)',
+        price: baseDaily,
+        pricingType: 'daily',
+        description: 'Full 24 hours doorstep console rental',
         isActive: true,
         displayOrder: 1,
       },
       {
-        durationHours: 2,
-        title: '2 Hours Duo Pass',
-        price: Math.round(baseHourly * 1.8),
-        originalPrice: baseHourly * 2,
-        pricingType: 'multi-hour',
+        durationHours: 48,
+        title: '2 Days Weekend Pass',
+        price: Math.round(baseDaily * 1.8),
+        originalPrice: baseDaily * 2,
+        pricingType: 'multi-day',
         badge: 'Popular',
         isPopular: true,
-        description: 'Two hours non-stop action',
+        description: '48 hours non-stop gaming session',
         isActive: true,
         displayOrder: 2,
       },
       {
-        durationHours: 3,
-        title: '3 Hours Squad Session',
-        price: Math.round(baseHourly * 2.6),
-        originalPrice: baseHourly * 3,
-        pricingType: 'multi-hour',
+        durationHours: 72,
+        title: '3 Days Pro Pass',
+        price: Math.round(baseDaily * 2.5),
+        originalPrice: baseDaily * 3,
+        pricingType: 'multi-day',
         badge: 'Save 15%',
-        description: 'Great for co-op & multiplayer',
+        description: '72 hours extended rental pass',
         isActive: true,
         displayOrder: 3,
       },
       {
-        durationHours: 5,
-        title: '5 Hours Pro Gaming',
-        price: Math.round(baseHourly * 4.0),
-        originalPrice: baseHourly * 5,
-        pricingType: 'package',
+        durationHours: 168,
+        title: '7 Days Weekly Marathon',
+        price: Math.round(baseDaily * 5.0),
+        originalPrice: baseDaily * 7,
+        pricingType: 'weekly',
         badge: 'Best Value',
-        description: 'Extended gaming session',
+        description: 'Full week doorstep console rental',
         isActive: true,
         displayOrder: 4,
       },
@@ -367,7 +367,7 @@ const createGame = async (req, res, next) => {
       )
     );
 
-    await logActivity(req, 'CREATE_GAME', 'Games', `Created game: ${game.title} (Hourly: ₹${game.hourlyPrice})`);
+    await logActivity(req, 'CREATE_GAME', 'Games', `Created game: ${game.title} (Daily: ₹${game.dailyPrice})`);
 
     res.status(201).json({
       success: true,

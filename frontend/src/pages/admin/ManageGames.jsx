@@ -61,7 +61,7 @@ const ManageGames = () => {
     genre: 'Action',
     category: '',
     platform: 'PS5',
-    hourlyPrice: 50,
+    hourlyPrice: 0,
     dailyPrice: 350,
     specialPrice: '',
     isAvailable: true,
@@ -212,7 +212,7 @@ const ManageGames = () => {
       genre: game.genre || 'Action',
       category: game.category?._id || game.category || '',
       platform: game.platform || 'PS5',
-      hourlyPrice: game.hourlyPrice || 50,
+      hourlyPrice: game.hourlyPrice || 0,
       dailyPrice: game.dailyPrice || 350,
       specialPrice: game.specialPrice || '',
       isAvailable: game.isAvailable !== undefined ? game.isAvailable : true,
@@ -261,7 +261,7 @@ const ManageGames = () => {
       setSubmitting(true);
       const payload = {
         ...formData,
-        hourlyPrice: Number(formData.hourlyPrice),
+        hourlyPrice: 0,
         dailyPrice: Number(formData.dailyPrice),
         specialPrice: formData.specialPrice ? Number(formData.specialPrice) : null,
         rating: Number(formData.rating),
@@ -537,8 +537,10 @@ const ManageGames = () => {
 
                       {/* Base Pricing */}
                       <td className="py-3 px-3 sm:px-4 font-mono">
-                        <div className="text-emerald-400 font-bold">₹{game.hourlyPrice}/hr</div>
-                        <div className="text-[10px] text-zinc-400">₹{game.dailyPrice}/day</div>
+                        <div className="text-emerald-400 font-bold">₹{game.dailyPrice}/day</div>
+                        {game.specialPrice ? (
+                          <div className="text-[10px] text-purple-300">Promo: ₹{game.specialPrice}</div>
+                        ) : null}
                       </td>
 
                       {/* Pricing Engine Link */}
@@ -765,23 +767,11 @@ const ManageGames = () => {
               {/* Pricing Section */}
               <div className="p-3 sm:p-4 rounded-xl bg-vault-surface/60 border border-purple-500/15">
                 <div className="font-semibold text-white mb-2 text-xs uppercase tracking-wider text-purple-300">
-                  Base Rates (Pricing engine creates duration tiers)
+                  Rental Pricing (Daily rate & special discount)
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-300 mb-1">Hourly Price (₹) *</label>
-                    <input
-                      type="number"
-                      min="0"
-                      required
-                      value={formData.hourlyPrice}
-                      onChange={(e) => setFormData({ ...formData, hourlyPrice: e.target.value })}
-                      className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-card border border-zinc-800 focus:border-purple-400 text-white outline-none font-mono"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold text-zinc-300 mb-1">Daily Price (₹) *</label>
+                    <label className="block font-semibold text-zinc-300 mb-1">Daily Rental Price (₹) *</label>
                     <input
                       type="number"
                       min="0"
@@ -789,15 +779,16 @@ const ManageGames = () => {
                       value={formData.dailyPrice}
                       onChange={(e) => setFormData({ ...formData, dailyPrice: e.target.value })}
                       className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-card border border-zinc-800 focus:border-purple-400 text-white outline-none font-mono"
+                      placeholder="e.g. 350"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-300 mb-1">Special Price (₹)</label>
+                    <label className="block font-semibold text-zinc-300 mb-1">Special / Promo Price (₹)</label>
                     <input
                       type="number"
                       min="0"
-                      placeholder="Optional"
+                      placeholder="Optional strikethrough rate"
                       value={formData.specialPrice}
                       onChange={(e) => setFormData({ ...formData, specialPrice: e.target.value })}
                       className="w-full px-3 py-1.5 sm:py-2 rounded-xl bg-vault-card border border-zinc-800 focus:border-purple-400 text-white outline-none font-mono"

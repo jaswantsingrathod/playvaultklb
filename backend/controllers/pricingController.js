@@ -112,7 +112,7 @@ const createPricingTier = async (req, res, next) => {
       title: title.trim(),
       price: Number(price),
       originalPrice: originalPrice ? Number(originalPrice) : null,
-      pricingType: pricingType || 'hourly',
+      pricingType: pricingType || 'daily',
       description: description ? description.trim() : '',
       badge: badge ? badge.trim() : '',
       isPopular: isPopular !== undefined ? isPopular : false,

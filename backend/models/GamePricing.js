@@ -10,11 +10,11 @@ const gamePricingSchema = new mongoose.Schema(
     durationHours: {
       type: Number,
       required: [true, 'Duration in hours is required'],
-      min: [0.5, 'Duration must be at least 30 minutes'],
+      min: [1, 'Duration must be at least 1 hour'],
     },
     title: {
       type: String,
-      required: [true, 'Pricing tier title is required'], // e.g. "1 Hour Quick Play", "2 Hours Double Pass", "3 Hours Session", "5 Hours Pro Pass", "Full Day 24h"
+      required: [true, 'Pricing tier title is required'], // e.g. "1 Day Pass", "2 Days Weekend Pass", "3 Days Pro Pass", "7 Days Weekly Pass"
       trim: true,
     },
     price: {
@@ -29,8 +29,8 @@ const gamePricingSchema = new mongoose.Schema(
     },
     pricingType: {
       type: String,
-      enum: ['hourly', 'multi-hour', 'daily', 'weekly', 'package', 'promotional', 'custom'],
-      default: 'hourly',
+      enum: ['daily', 'multi-day', 'weekly', 'package', 'promotional', 'custom', 'hourly', 'multi-hour'],
+      default: 'daily',
     },
     description: {
       type: String,

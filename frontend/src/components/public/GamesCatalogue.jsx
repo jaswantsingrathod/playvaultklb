@@ -168,8 +168,8 @@ const GamesCatalogue = () => {
             {filteredGames.map((game) => {
               const quickBookingUrl = getGameBookingUrl({
                 gameTitle: game.title,
-                duration: '1 Hour',
-                price: game.hourlyPrice,
+                duration: '1 Day Pass (24 hrs)',
+                price: game.dailyPrice,
                 platform: game.platform || 'PS5',
                 phone: whatsappNumber,
               });
@@ -266,19 +266,25 @@ const GamesCatalogue = () => {
                     <div className="mt-4 pt-3 border-t border-purple-500/15">
                       <div className="flex items-baseline justify-between mb-3">
                         <div>
-                          <div className="text-[9px] uppercase tracking-wider font-semibold text-zinc-400">Hourly Rate</div>
+                          <div className="text-[9px] uppercase tracking-wider font-semibold text-zinc-400">Daily Pass</div>
                           <div className="font-gaming font-extrabold text-xl text-white">
-                            ₹{game.hourlyPrice}
-                            <span className="text-xs text-zinc-400 font-normal"> /hr</span>
+                            ₹{game.dailyPrice}
+                            <span className="text-xs text-zinc-400 font-normal"> /day</span>
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <div className="text-[9px] uppercase tracking-wider font-semibold text-zinc-400">Daily Pass</div>
-                          <div className="font-gaming font-extrabold text-base text-emerald-400">
-                            ₹{game.dailyPrice}
+                        {game.specialPrice ? (
+                          <div className="text-right">
+                            <div className="text-[9px] uppercase tracking-wider font-semibold text-purple-400">Special Rate</div>
+                            <div className="font-gaming font-extrabold text-base text-emerald-400">
+                              ₹{game.specialPrice}
+                            </div>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="text-right">
+                            <span className="text-[10px] text-zinc-500 font-mono">Doorstep Setup</span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Tactile Gaming Action Buttons */}
