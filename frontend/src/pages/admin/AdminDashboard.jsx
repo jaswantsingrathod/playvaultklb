@@ -4,7 +4,7 @@ import {
   Gamepad2,
   CalendarDays,
   FolderTree,
-  CircleDollarSign,
+  Image as ImageIcon,
   Plus,
   ArrowUpRight,
   ShieldCheck,
@@ -66,7 +66,7 @@ const AdminDashboard = () => {
               Admin Dashboard
             </h2>
             <p className="mt-1 text-xs sm:text-sm text-zinc-400 max-w-2xl">
-              Manage your PlayStation 5 games, configure game-specific pricing engine tiers, update rental packages, and monitor customer activity in real time.
+              Manage your PlayStation 5 games, official console rental plans, media library, and customer bookings in real time.
             </p>
           </div>
 
@@ -80,11 +80,11 @@ const AdminDashboard = () => {
             </Link>
 
             <Link
-              to="/admin/pricing"
-              className="flex-1 sm:flex-initial px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-vault-surface hover:bg-vault-card text-purple-300 border border-purple-500/30 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all whitespace-nowrap"
+              to="/admin/rental-plans"
+              className="flex-1 sm:flex-initial px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl bg-vault-surface hover:bg-vault-card text-cyan-300 border border-cyan-500/30 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all whitespace-nowrap"
             >
-              <CircleDollarSign className="w-3.5 h-3.5" />
-              <span>Pricing</span>
+              <CalendarDays className="w-3.5 h-3.5" />
+              <span>Rental Plans</span>
             </Link>
           </div>
         </div>
@@ -123,44 +123,44 @@ const AdminDashboard = () => {
             <div className="text-[10px] sm:text-xs text-cyan-400 font-semibold">{stats.activePlans || 0} Active</div>
           </div>
           <div className="mt-2 pt-2 border-t border-purple-500/10 text-[10px] text-zinc-400 flex items-center justify-between">
-            <span>Official Plans</span>
+            <span>Official Packages</span>
             <Link to="/admin/rental-plans" className="text-cyan-400 hover:underline">Manage</Link>
           </div>
         </div>
 
-        {/* Pricing Tiers Configured */}
+        {/* Categories */}
         <div className="rounded-2xl bg-vault-card border border-purple-500/15 p-3.5 sm:p-5 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-400">Pricing Engine</span>
-            <div className="p-1.5 sm:p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <CircleDollarSign className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-          </div>
-          <div className="mt-2.5 sm:mt-4 flex items-baseline justify-between">
-            <span className="font-gaming font-extrabold text-2xl sm:text-3xl text-white">{stats.activePricings || 0}</span>
-            <div className="text-[10px] sm:text-xs text-emerald-400 font-semibold">Active Tiers</div>
-          </div>
-          <div className="mt-2 pt-2 border-t border-purple-500/10 text-[10px] text-zinc-400 flex items-center justify-between">
-            <span>Avg: ₹{stats.avgHourlyPrice || 50}/hr</span>
-            <span>₹{stats.avgDailyPrice || 350}/day</span>
-          </div>
-        </div>
-
-        {/* Categories & Media */}
-        <div className="rounded-2xl bg-vault-card border border-purple-500/15 p-3.5 sm:p-5 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-400">Assets</span>
-            <div className="p-1.5 sm:p-2.5 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-400">Categories</span>
+            <div className="p-1.5 sm:p-2.5 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/20">
               <FolderTree className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
           </div>
           <div className="mt-2.5 sm:mt-4 flex items-baseline justify-between">
             <span className="font-gaming font-extrabold text-2xl sm:text-3xl text-white">{stats.totalCategories || 0}</span>
-            <div className="text-[10px] sm:text-xs text-pink-400 font-semibold">{stats.totalMedia || 0} Media</div>
+            <div className="text-[10px] sm:text-xs text-purple-300 font-semibold">Genres</div>
           </div>
           <div className="mt-2 pt-2 border-t border-purple-500/10 text-[10px] text-zinc-400 flex items-center justify-between">
-            <Link to="/admin/categories" className="text-purple-400 hover:underline">Categories</Link>
-            <Link to="/admin/media" className="text-pink-400 hover:underline">Media</Link>
+            <span>Game Tags</span>
+            <Link to="/admin/categories" className="text-purple-400 hover:underline">Manage</Link>
+          </div>
+        </div>
+
+        {/* Media Assets */}
+        <div className="rounded-2xl bg-vault-card border border-purple-500/15 p-3.5 sm:p-5 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-400">Media Assets</span>
+            <div className="p-1.5 sm:p-2.5 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+              <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+            </div>
+          </div>
+          <div className="mt-2.5 sm:mt-4 flex items-baseline justify-between">
+            <span className="font-gaming font-extrabold text-2xl sm:text-3xl text-white">{stats.totalMedia || 0}</span>
+            <div className="text-[10px] sm:text-xs text-pink-400 font-semibold">Cloudinary</div>
+          </div>
+          <div className="mt-2 pt-2 border-t border-purple-500/10 text-[10px] text-zinc-400 flex items-center justify-between">
+            <span>Cloud Storage</span>
+            <Link to="/admin/media" className="text-pink-400 hover:underline">Library</Link>
           </div>
         </div>
       </div>

@@ -60,7 +60,6 @@ const getDashboardStats = async (req, res, next) => {
         totalCategories,
         totalMedia,
         activePricings: pricingsCount,
-        avgHourlyPrice: avgHourly,
         avgDailyPrice: avgDaily,
       },
       latestGames,
