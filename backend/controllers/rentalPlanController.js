@@ -18,7 +18,7 @@ const getPublicRentalPlans = async (req, res, next) => {
   try {
     const plans = await RentalPlan.find({ isActive: true }).sort({
       displayOrder: 1,
-      durationHours: 1,
+      createdAt: 1,
     });
 
     res.status(200).json({
@@ -57,7 +57,7 @@ const getAdminRentalPlans = async (req, res, next) => {
     const plans = await RentalPlan.find(query)
       .sort({
         displayOrder: 1,
-        durationHours: 1,
+        createdAt: 1,
       })
       .skip(skip)
       .limit(limitNum);
@@ -273,6 +273,45 @@ const bulkDeleteRentalPlans = async (req, res, next) => {
   }
 };
 
+// @desc    Reorder rental plans (batch update displayOrder)
+// @route   PUT /api/admin/rental-plans/reorder
+// @access  Private
+const reorderRentalPlans = async (req, res, next) => {
+  try {
+    const { planIds } = req.body;
+
+    if (!Array.isArray(planIds) || planIds.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide an ordered array of rental plan IDs.',
+      });
+    }
+
+    const bulkOps = planIds.map((id, index) => ({
+      updateOne: {
+        filter: { _id: id },
+        update: { $set: { displayOrder: index + 1 } },
+      },
+    }));
+
+    await RentalPlan.bulkWrite(bulkOps);
+
+    await logActivity(
+      req,
+      'REORDER_PLANS',
+      'RentalPlans',
+      `Reordered ${planIds.length} rental plans.`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Rental plans reordered successfully.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPublicRentalPlans,
   getAdminRentalPlans,
@@ -280,4 +319,5 @@ module.exports = {
   updateRentalPlan,
   deleteRentalPlan,
   bulkDeleteRentalPlans,
+  reorderRentalPlans,
 };

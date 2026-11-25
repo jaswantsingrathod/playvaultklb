@@ -11,6 +11,9 @@ import {
   CheckSquare,
   Square,
   MinusSquare,
+  GripVertical,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
@@ -26,9 +29,13 @@ const ManageRentalPlans = () => {
 
   // Server-side pagination state
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+
+  // Drag and drop state
+  const [draggedIndex, setDraggedIndex] = useState(null);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState([]);
@@ -94,6 +101,69 @@ const ManageRentalPlans = () => {
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
     setPage(1);
+  };
+
+  // Drag and Drop & Order Handlers
+  const handleDragStart = (e, index) => {
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = async (e, targetIndex) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === targetIndex) {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    const reordered = [...plans];
+    const [movedItem] = reordered.splice(draggedIndex, 1);
+    reordered.splice(targetIndex, 0, movedItem);
+
+    setPlans(reordered);
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+
+    await saveNewOrder(reordered);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleMoveStep = async (currentIndex, direction) => {
+    const targetIndex = currentIndex + direction;
+    if (targetIndex < 0 || targetIndex >= plans.length) return;
+
+    const reordered = [...plans];
+    const [movedItem] = reordered.splice(currentIndex, 1);
+    reordered.splice(targetIndex, 0, movedItem);
+
+    setPlans(reordered);
+    await saveNewOrder(reordered);
+  };
+
+  const saveNewOrder = async (reorderedPlans) => {
+    try {
+      const planIds = reorderedPlans.map((p) => p._id);
+      await api.put('/rental-plans/admin/reorder', { planIds });
+      toast.success('Rental plans reordered successfully!');
+    } catch (err) {
+      console.error('Failed to save plan order:', err);
+      toast.error('Failed to save plan order.');
+      fetchPlans();
+    }
   };
 
   // Bulk selection helpers
@@ -316,12 +386,19 @@ const ManageRentalPlans = () => {
         onDelete={() => setIsBulkDeleteOpen(true)}
       />
 
+      {/* Reorder Tip */}
+      <div className="flex items-center gap-2 text-xs text-purple-300 bg-purple-950/30 border border-purple-500/20 px-3.5 py-2 rounded-xl">
+        <GripVertical className="w-4 h-4 text-purple-400 shrink-0" />
+        <span>Drag and drop rows using the handle or use the ▲ ▼ arrows to set the exact order plans appear on the website.</span>
+      </div>
+
       {/* Plans Table */}
       <div className="rounded-2xl bg-vault-card border border-purple-500/15 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs min-w-[650px]">
             <thead className="bg-vault-surface/80 border-b border-purple-500/15 text-zinc-400 font-semibold uppercase tracking-wider">
               <tr>
+                <th className="py-2.5 px-2 sm:px-3 w-16 text-center">Order</th>
                 <th className="py-2.5 px-3 sm:px-4 w-10 text-center">
                   <button
                     type="button"
@@ -351,24 +428,65 @@ const ManageRentalPlans = () => {
             <tbody className="divide-y divide-purple-500/10">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="py-10 text-center text-zinc-400">Loading plans from database...</td>
+                  <td colSpan="10" className="py-10 text-center text-zinc-400">Loading plans from database...</td>
                 </tr>
               ) : plans.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="py-10 text-center text-zinc-400">No rental plans found. Click "Create Plan" to add one.</td>
+                  <td colSpan="10" className="py-10 text-center text-zinc-400">No rental plans found. Click "Create Plan" to add one.</td>
                 </tr>
               ) : (
-                plans.map((plan) => {
+                plans.map((plan, index) => {
                   const isSelected = selectedIds.includes(plan._id);
                   return (
                     <tr
                       key={plan._id}
-                      className={`transition-colors ${
-                        isSelected
+                      draggable={!search && !loading}
+                      onDragStart={(e) => handleDragStart(e, index)}
+                      onDragOver={(e) => handleDragOver(e, index)}
+                      onDrop={(e) => handleDrop(e, index)}
+                      onDragEnd={handleDragEnd}
+                      className={`transition-all select-none ${
+                        draggedIndex === index
+                          ? 'opacity-30 bg-purple-950/60'
+                          : dragOverIndex === index
+                          ? 'border-t-2 border-purple-400 bg-purple-900/30'
+                          : isSelected
                           ? 'bg-purple-950/30 hover:bg-purple-950/40'
                           : 'hover:bg-vault-surface/40'
                       }`}
                     >
+                      {/* Drag & Move Column */}
+                      <td className="py-3 px-2 text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <span
+                            className="cursor-grab active:cursor-grabbing text-zinc-500 hover:text-purple-400 transition-colors p-1"
+                            title="Drag to reposition plan"
+                          >
+                            <GripVertical className="w-4 h-4" />
+                          </span>
+                          <div className="flex flex-col">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => handleMoveStep(index, -1)}
+                              className="text-zinc-500 hover:text-purple-300 disabled:opacity-20 disabled:hover:text-zinc-500 p-0.5 transition-colors"
+                              title="Move Up"
+                            >
+                              <ChevronUp className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === plans.length - 1}
+                              onClick={() => handleMoveStep(index, 1)}
+                              className="text-zinc-500 hover:text-purple-300 disabled:opacity-20 disabled:hover:text-zinc-500 p-0.5 transition-colors"
+                              title="Move Down"
+                            >
+                              <ChevronDown className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+
                       {/* Checkbox */}
                       <td className="py-3 px-3 sm:px-4 text-center">
                         <button
